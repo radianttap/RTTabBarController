@@ -228,6 +228,28 @@
 	self.tabItemsCollectionView.scrollEnabled = tabsScrollable;
 }
 
+- (void)setSelectedIndex:(NSInteger)selectedIndex {
+
+	if (_selectedIndex == selectedIndex) return;
+	_selectedIndex = selectedIndex;
+
+	_selectedViewController = self.viewControllers[selectedIndex];
+
+	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
+	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+}
+
+- (void)setSelectedViewController:(__kindof UIViewController *)selectedViewController {
+
+	if (_selectedViewController == selectedViewController) return;
+	_selectedViewController = selectedViewController;
+
+	_selectedIndex = [self.viewControllers indexOfObject:selectedViewController];
+
+	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
+	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+}
+
 - (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
 
 	if (viewControllers.count == 0) {
