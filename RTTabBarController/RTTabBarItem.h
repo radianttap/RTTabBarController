@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) IBOutlet UILabel *captionLabel;
 @property (nonatomic, weak) IBOutlet UIImageView *iconView;
 
+- (void)populateWithCaption:(nullable NSString *)caption icon:(nullable UIImage *)image selectedIcon:(nullable UIImage *)selectedImage;
+
 @end
 
 NS_ASSUME_NONNULL_END

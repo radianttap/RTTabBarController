@@ -24,6 +24,8 @@
 @property (nonatomic, strong) NSLayoutConstraint *trailingSideWidthConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *tabsHeightConstraint;
 
+@property (nullable, nonatomic, copy) NSArray<__kindof UITabBarItem *> *tabsDataSource;
+
 @end
 
 @implementation RTTabBarController
@@ -34,6 +36,10 @@
 	if (!self) return nil;
 
 	_viewControllers = nil;
+	_tabsDataSource = nil;
+	_selectedIndex = NSNotFound;
+	_selectedViewController = nil;
+	_tabsDataSource = nil;
 
 	return self;
 }
@@ -176,9 +182,40 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
 
 	RTTabBarItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier] forIndexPath:indexPath];
+
+	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
+	cell.selected = (self.selectedIndex == indexPath.item);
+	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];
+
 	return cell;
 }
 
+
+
+
+#pragma mark - Public API
+
+- (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
+
+	if (viewControllers.count == 0) {
+		//	?
+		return;
+	}
+
+	_viewControllers = viewControllers;
+
+	if (self.selectedIndex == NSNotFound) self.selectedIndex = 0;
+	self.selectedViewController = viewControllers[self.selectedIndex];
+
+	NSMutableArray <UITabBarItem*> *marr = [NSMutableArray array];
+	[viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull vc, NSUInteger idx, BOOL * _Nonnull stop) {
+		UITabBarItem *tbi = vc.tabBarItem;
+		[marr addObject:tbi];
+	}];
+
+	self.tabsDataSource = marr;
+	[self.tabItemsCollectionView reloadData];
+}
 
 
 @end

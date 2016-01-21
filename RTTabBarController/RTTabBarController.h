@@ -8,8 +8,15 @@
 
 @import UIKit;
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface RTTabBarController : UIViewController
 
-@property (nonatomic, strong) NSArray< UIViewController* > *viewControllers;
+@property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *viewControllers;
+
+@property (nonatomic) NSInteger selectedIndex;
+@property (nullable, nonatomic, assign) __kindof UIViewController *selectedViewController;
 
 @end
+
+NS_ASSUME_NONNULL_END
