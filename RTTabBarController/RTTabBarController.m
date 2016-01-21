@@ -40,6 +40,7 @@
 	_selectedIndex = NSNotFound;
 	_selectedViewController = nil;
 	_tabsDataSource = nil;
+	_tabsScrollable = NO;
 
 	_maximumVisibleTabs = 5;
 
@@ -130,7 +131,7 @@
 		collectionView.translatesAutoresizingMaskIntoConstraints = NO;
 		collectionView.delegate = self;
 		collectionView.dataSource = self;
-		collectionView.scrollEnabled = NO;
+		collectionView.scrollEnabled = self.areTabsScrollable;
 		collectionView.showsVerticalScrollIndicator = NO;
 		collectionView.showsHorizontalScrollIndicator = NO;
 		self.tabItemsCollectionView = collectionView;
@@ -215,6 +216,14 @@
 
 
 #pragma mark - Public API
+
+- (void)setTabsScrollable:(BOOL)tabsScrollable {
+
+	if (_tabsScrollable == tabsScrollable) return;
+	_tabsScrollable = tabsScrollable;
+
+	self.tabItemsCollectionView.scrollEnabled = tabsScrollable;
+}
 
 - (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
 

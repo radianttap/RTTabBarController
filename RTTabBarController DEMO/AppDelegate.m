@@ -69,6 +69,7 @@
 
 	RTTabBarController *tc = [RTTabBarController new];
 	tc.viewControllers = marr;
+	tc.tabsScrollable = YES;
 	self.window.rootViewController = tc;
 
 	return YES;
