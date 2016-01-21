@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 
+#import "RTTabBarController.h"
+
 @interface AppDelegate ()
 
 @end
@@ -17,6 +19,9 @@
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+
+	RTTabBarController *tc = [RTTabBarController new];
+	self.window.rootViewController = tc;
 
 	return YES;
 }

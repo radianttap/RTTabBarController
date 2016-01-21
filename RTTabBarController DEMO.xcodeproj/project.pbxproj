@@ -14,6 +14,8 @@
 		D0BD96571C51376B0014DA47 /* RTTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96561C51376B0014DA47 /* RTTabBarController.m */; };
 		D0BD965A1C5138E10014DA47 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96581C5138E10014DA47 /* LICENSE */; };
 		D0BD965B1C5138E10014DA47 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96591C5138E10014DA47 /* README.md */; };
+		D0BD965F1C514B480014DA47 /* RTTabBarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BD965D1C514B480014DA47 /* RTTabBarItem.m */; };
+		D0BD96601C514B480014DA47 /* RTTabBarItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = D0BD965E1C514B480014DA47 /* RTTabBarItem.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +30,9 @@
 		D0BD96561C51376B0014DA47 /* RTTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTTabBarController.m; sourceTree = "<group>"; };
 		D0BD96581C5138E10014DA47 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		D0BD96591C5138E10014DA47 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		D0BD965C1C514B480014DA47 /* RTTabBarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTTabBarItem.h; sourceTree = "<group>"; };
+		D0BD965D1C514B480014DA47 /* RTTabBarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTTabBarItem.m; sourceTree = "<group>"; };
+		D0BD965E1C514B480014DA47 /* RTTabBarItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RTTabBarItem.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +91,9 @@
 			children = (
 				D0BD96551C51376B0014DA47 /* RTTabBarController.h */,
 				D0BD96561C51376B0014DA47 /* RTTabBarController.m */,
+				D0BD965C1C514B480014DA47 /* RTTabBarItem.h */,
+				D0BD965D1C514B480014DA47 /* RTTabBarItem.m */,
+				D0BD965E1C514B480014DA47 /* RTTabBarItem.xib */,
 			);
 			path = RTTabBarController;
 			sourceTree = "<group>";
@@ -150,6 +158,7 @@
 			files = (
 				D0BD965A1C5138E10014DA47 /* LICENSE in Resources */,
 				D0BD964D1C5136C60014DA47 /* LaunchScreen.storyboard in Resources */,
+				D0BD96601C514B480014DA47 /* RTTabBarItem.xib in Resources */,
 				D0BD964A1C5136C60014DA47 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -164,6 +173,7 @@
 				D0BD96571C51376B0014DA47 /* RTTabBarController.m in Sources */,
 				D0BD96421C5136C60014DA47 /* AppDelegate.m in Sources */,
 				D0BD965B1C5138E10014DA47 /* README.md in Sources */,
+				D0BD965F1C514B480014DA47 /* RTTabBarItem.m in Sources */,
 				D0BD963F1C5136C60014DA47 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

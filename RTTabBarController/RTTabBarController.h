@@ -10,4 +10,6 @@
 
 @interface RTTabBarController : UIViewController
 
+@property (nonatomic, strong) NSArray< UIViewController* > *viewControllers;
+
 @end
