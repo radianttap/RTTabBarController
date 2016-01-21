@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  RTTabBarController.h
 //  RTTabBarController DEMO
 //
 //  Created by Aleksandar Vacić on 21.1.16..
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface RTTabBarController : UIViewController
 
 @end
-
