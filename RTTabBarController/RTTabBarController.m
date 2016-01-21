@@ -41,6 +41,8 @@
 	_selectedViewController = nil;
 	_tabsDataSource = nil;
 
+	_maximumVisibleTabs = 5;
+
 	return self;
 }
 
@@ -162,7 +164,7 @@
 
 	self.mainLayoutView.backgroundColor = [UIColor darkGrayColor];
 	self.mainContainerView.backgroundColor = [UIColor lightGrayColor];
-	self.tabItemsCollectionView.backgroundColor = [UIColor greenColor];
+	self.tabItemsCollectionView.backgroundColor = [UIColor whiteColor];
 
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
 }
@@ -170,6 +172,17 @@
 
 
 #pragma mark CollectionView
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+
+	CGFloat w = collectionView.bounds.size.width;
+	CGFloat h = collectionViewLayout.itemSize.height;
+
+	w -= collectionViewLayout.minimumLineSpacing * (self.maximumVisibleTabs-1);
+	CGFloat cellw = w / self.maximumVisibleTabs;
+
+	return CGSizeMake(cellw, h);
+}
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
 	return 1;
@@ -182,15 +195,23 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
 
 	RTTabBarItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier] forIndexPath:indexPath];
+	cell.selected = (self.selectedIndex == indexPath.item);
 
 	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
-	cell.selected = (self.selectedIndex == indexPath.item);
 	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];
+
+	if (cell.selected) {
+		[collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+	}
 
 	return cell;
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
 
+	self.selectedIndex = indexPath.item;
+	[collectionView reloadData];
+}
 
 
 #pragma mark - Public API

@@ -18,6 +18,7 @@
 		D0BD96601C514B480014DA47 /* RTTabBarItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = D0BD965E1C514B480014DA47 /* RTTabBarItem.xib */; };
 		D0BD96621C51539A0014DA47 /* Icons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96611C51539A0014DA47 /* Icons.xcassets */; };
 		D0BD96641C5155DB0014DA47 /* SelectedIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96631C5155DB0014DA47 /* SelectedIcons.xcassets */; };
+		D0BD96671C51577E0014DA47 /* RTViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96661C51577E0014DA47 /* RTViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,8 @@
 		D0BD965E1C514B480014DA47 /* RTTabBarItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RTTabBarItem.xib; sourceTree = "<group>"; };
 		D0BD96611C51539A0014DA47 /* Icons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Icons.xcassets; sourceTree = "<group>"; };
 		D0BD96631C5155DB0014DA47 /* SelectedIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = SelectedIcons.xcassets; sourceTree = "<group>"; };
+		D0BD96651C51577E0014DA47 /* RTViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTViewController.h; sourceTree = "<group>"; };
+		D0BD96661C51577E0014DA47 /* RTViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +80,8 @@
 				D0BD96611C51539A0014DA47 /* Icons.xcassets */,
 				D0BD96631C5155DB0014DA47 /* SelectedIcons.xcassets */,
 				D0BD963D1C5136C60014DA47 /* Supporting Files */,
+				D0BD96651C51577E0014DA47 /* RTViewController.h */,
+				D0BD96661C51577E0014DA47 /* RTViewController.m */,
 			);
 			path = "RTTabBarController DEMO";
 			sourceTree = "<group>";
@@ -182,6 +187,7 @@
 				D0BD96421C5136C60014DA47 /* AppDelegate.m in Sources */,
 				D0BD965B1C5138E10014DA47 /* README.md in Sources */,
 				D0BD965F1C514B480014DA47 /* RTTabBarItem.m in Sources */,
+				D0BD96671C51577E0014DA47 /* RTViewController.m in Sources */,
 				D0BD963F1C5136C60014DA47 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

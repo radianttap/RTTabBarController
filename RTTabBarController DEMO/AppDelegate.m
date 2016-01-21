@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 
 #import "RTTabBarController.h"
+#import "RTViewController.h"
 
 @interface AppDelegate ()
 
@@ -20,7 +21,54 @@
 
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
+	NSMutableArray *marr = [NSMutableArray array];
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Bookmarks" iconName:@"icon-bookmarks"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Chats" iconName:@"icon-chats"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Contacts" iconName:@"icon-contacts"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Favorites" iconName:@"icon-favs"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Around me" iconName:@"icon-locations"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Playlists" iconName:@"icon-music"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Recents" iconName:@"icon-recent"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Settings" iconName:@"icon-settings"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Stopwatch" iconName:@"icon-stopwatch"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"World" iconName:@"icon-world"];
+		[marr addObject:vc];
+	}
+	{
+		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Trash" iconName:@"icon-trash"];
+		[marr addObject:vc];
+	}
+
 	RTTabBarController *tc = [RTTabBarController new];
+	tc.viewControllers = marr;
 	self.window.rootViewController = tc;
 
 	return YES;

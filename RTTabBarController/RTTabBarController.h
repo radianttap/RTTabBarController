@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RTTabBarController : UIViewController
 
 @property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *viewControllers;
+@property (nonatomic) NSInteger maximumVisibleTabs;
 
 @property (nonatomic) NSInteger selectedIndex;
 @property (nullable, nonatomic, assign) __kindof UIViewController *selectedViewController;
