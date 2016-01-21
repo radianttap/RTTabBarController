@@ -170,7 +170,14 @@
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+	[super viewWillAppear:animated];
 
+	if (self.selectedIndex != NSNotFound) {
+		NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
+		[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+	}
+}
 
 #pragma mark CollectionView
 
@@ -201,17 +208,13 @@
 	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
 	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];
 
-	if (cell.selected) {
-		[collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-	}
-
 	return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
 
 	self.selectedIndex = indexPath.item;
-	[collectionView reloadData];
+	[collectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
 }
 
 
