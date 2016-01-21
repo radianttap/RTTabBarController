@@ -12,6 +12,8 @@
 		D0BD964A1C5136C60014DA47 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96491C5136C60014DA47 /* Assets.xcassets */; };
 		D0BD964D1C5136C60014DA47 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0BD964B1C5136C60014DA47 /* LaunchScreen.storyboard */; };
 		D0BD96571C51376B0014DA47 /* RTTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96561C51376B0014DA47 /* RTTabBarController.m */; };
+		D0BD965A1C5138E10014DA47 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96581C5138E10014DA47 /* LICENSE */; };
+		D0BD965B1C5138E10014DA47 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96591C5138E10014DA47 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		D0BD964E1C5136C60014DA47 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D0BD96551C51376B0014DA47 /* RTTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTTabBarController.h; sourceTree = "<group>"; };
 		D0BD96561C51376B0014DA47 /* RTTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTTabBarController.m; sourceTree = "<group>"; };
+		D0BD96581C5138E10014DA47 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		D0BD96591C5138E10014DA47 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,9 +63,8 @@
 			children = (
 				D0BD96401C5136C60014DA47 /* AppDelegate.h */,
 				D0BD96411C5136C60014DA47 /* AppDelegate.m */,
-				D0BD96491C5136C60014DA47 /* Assets.xcassets */,
-				D0BD964B1C5136C60014DA47 /* LaunchScreen.storyboard */,
-				D0BD964E1C5136C60014DA47 /* Info.plist */,
+				D0BD96581C5138E10014DA47 /* LICENSE */,
+				D0BD96591C5138E10014DA47 /* README.md */,
 				D0BD963D1C5136C60014DA47 /* Supporting Files */,
 			);
 			path = "RTTabBarController DEMO";
@@ -70,6 +73,9 @@
 		D0BD963D1C5136C60014DA47 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D0BD96491C5136C60014DA47 /* Assets.xcassets */,
+				D0BD964B1C5136C60014DA47 /* LaunchScreen.storyboard */,
+				D0BD964E1C5136C60014DA47 /* Info.plist */,
 				D0BD963E1C5136C60014DA47 /* main.m */,
 			);
 			name = "Supporting Files";
@@ -142,6 +148,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0BD965A1C5138E10014DA47 /* LICENSE in Resources */,
 				D0BD964D1C5136C60014DA47 /* LaunchScreen.storyboard in Resources */,
 				D0BD964A1C5136C60014DA47 /* Assets.xcassets in Resources */,
 			);
@@ -156,6 +163,7 @@
 			files = (
 				D0BD96571C51376B0014DA47 /* RTTabBarController.m in Sources */,
 				D0BD96421C5136C60014DA47 /* AppDelegate.m in Sources */,
+				D0BD965B1C5138E10014DA47 /* README.md in Sources */,
 				D0BD963F1C5136C60014DA47 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

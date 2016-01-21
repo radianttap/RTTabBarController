@@ -1,6 +1,6 @@
 //
 //  RTTabBarController.h
-//  RTTabBarController DEMO
+//  RTTabBarController
 //
 //  Created by Aleksandar Vacić on 21.1.16..
 //  Copyright © 2016. Radiant Tap. All rights reserved.
