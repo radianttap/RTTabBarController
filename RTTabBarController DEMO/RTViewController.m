@@ -40,6 +40,7 @@
 	[super loadView];
 
 	UIImageView *iv = [UIImageView new];
+	iv.contentMode = UIViewContentModeScaleAspectFill;
 	iv.translatesAutoresizingMaskIntoConstraints = NO;
 	self.photoView = iv;
 	[self.view addSubview:iv];

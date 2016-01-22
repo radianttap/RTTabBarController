@@ -171,6 +171,8 @@
 	self.tabItemsCollectionView.backgroundColor = [UIColor whiteColor];
 
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
+
+	[self displaySelectedController];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -221,6 +223,32 @@
 }
 
 
+
+#pragma mark - Internal API
+
+- (void)displaySelectedController {
+	if (!self.isViewLoaded) return;
+	if (!self.selectedViewController) return;
+
+	[self.mainContainerView.subviews.firstObject removeFromSuperview];
+
+	UIViewController *vc = self.selectedViewController;
+
+	[self addChildViewController:vc];
+	[self.mainContainerView addSubview:vc.view];
+	vc.view.translatesAutoresizingMaskIntoConstraints = NO;
+	[vc didMoveToParentViewController:self];
+
+	NSDictionary *vd = @{@"iv": vc.view};
+	[self.mainContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[iv]|" options:0 metrics:nil views:vd]];
+	[self.mainContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]|" options:0 metrics:nil views:vd]];
+}
+
+
+
+
+
+
 #pragma mark - Public API
 
 - (void)setTabsScrollable:(BOOL)tabsScrollable {
@@ -240,6 +268,8 @@
 
 	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
 	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+
+	[self displaySelectedController];
 }
 
 - (void)setSelectedViewController:(__kindof UIViewController *)selectedViewController {
@@ -251,12 +281,15 @@
 
 	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
 	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+
+	[self displaySelectedController];
 }
 
 - (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
 
 	if (viewControllers.count == 0) {
-		//	?
+		//	remove visible controlers
+		//	remove tabs
 		return;
 	}
 
@@ -273,6 +306,7 @@
 
 	self.tabsDataSource = marr;
 	[self.tabItemsCollectionView reloadData];
+	[self displaySelectedController];
 }
 
 - (void)setLeadingSidePanelEnabled:(BOOL)leadingSidePanelEnabled {
