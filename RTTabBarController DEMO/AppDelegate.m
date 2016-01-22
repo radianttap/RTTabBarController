@@ -24,58 +24,58 @@
 	NSMutableArray *marr = [NSMutableArray array];
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Bookmarks" iconName:@"icon-bookmarks"];
-		[vc.photoView setImage:[UIImage imageNamed:@"01"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Chats" iconName:@"icon-chats"];
-		[vc.photoView setImage:[UIImage imageNamed:@"02"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Contacts" iconName:@"icon-contacts"];
-		[vc.photoView setImage:[UIImage imageNamed:@"03"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Favorites" iconName:@"icon-favs"];
-		[vc.photoView setImage:[UIImage imageNamed:@"04"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Around me" iconName:@"icon-locations"];
-		[vc.photoView setImage:[UIImage imageNamed:@"05"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Playlists" iconName:@"icon-music"];
-		[vc.photoView setImage:[UIImage imageNamed:@"06"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Recents" iconName:@"icon-recent"];
-		[vc.photoView setImage:[UIImage imageNamed:@"07"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Settings" iconName:@"icon-settings"];
-		[vc.photoView setImage:[UIImage imageNamed:@"08"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Stopwatch" iconName:@"icon-stopwatch"];
-		[vc.photoView setImage:[UIImage imageNamed:@"09"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"World" iconName:@"icon-world"];
-		[vc.photoView setImage:[UIImage imageNamed:@"10"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 	{
 		RTViewController *vc = [[RTViewController alloc] initWithTitle:@"Trash" iconName:@"icon-trash"];
-		[vc.photoView setImage:[UIImage imageNamed:@"11"]];
 		[marr addObject:vc];
+		vc.photoOrder = marr.count;
 	}
 
 	RTTabBarController *tc = [RTTabBarController new];

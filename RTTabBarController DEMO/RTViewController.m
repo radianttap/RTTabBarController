@@ -13,6 +13,8 @@
 @property (nonatomic, copy) NSString *imageName;
 @property (nonatomic, copy) NSString *viewTitle;
 
+@property (nonatomic, strong) UIImageView *photoView;
+
 @end
 
 @implementation RTViewController
@@ -48,6 +50,12 @@
 	NSDictionary *vd = @{@"iv": iv};
 	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[iv]|" options:0 metrics:nil views:vd]];
 	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]|" options:0 metrics:nil views:vd]];
+}
+
+- (void)viewDidLoad {
+	[super viewDidLoad];
+
+	self.photoView.image = [UIImage imageNamed:[@(self.photoOrder) stringValue]];
 }
 
 @end
