@@ -36,4 +36,17 @@
 	return self;
 }
 
+- (void)loadView {
+	[super loadView];
+
+	UIImageView *iv = [UIImageView new];
+	iv.translatesAutoresizingMaskIntoConstraints = NO;
+	self.photoView = iv;
+	[self.view addSubview:iv];
+
+	NSDictionary *vd = @{@"iv": iv};
+	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[iv]|" options:0 metrics:nil views:vd]];
+	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]|" options:0 metrics:nil views:vd]];
+}
+
 @end

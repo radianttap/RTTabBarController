@@ -10,6 +10,7 @@
 
 @interface RTViewController : UIViewController
 
+@property (nonatomic, strong) UIImageView *photoView;
 - (instancetype)initWithTitle:(NSString *)title iconName:(NSString *)icon;
 
 @end
