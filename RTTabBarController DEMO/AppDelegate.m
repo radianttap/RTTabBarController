@@ -80,14 +80,15 @@
 
 	RTTabBarController *tc = [RTTabBarController new];
 	tc.viewControllers = marr;
-//	tc.tabsScrollable = YES;
 	self.window.rootViewController = tc;
+
+	self.window.tintColor = [UIColor redColor];
 
 	return YES;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	// Override point for customization after application launch.
+
 	[self.window makeKeyAndVisible];
 	return YES;
 }

@@ -137,6 +137,7 @@
 		collectionView.scrollEnabled = self.areTabsScrollable;
 		collectionView.showsVerticalScrollIndicator = NO;
 		collectionView.showsHorizontalScrollIndicator = NO;
+		collectionView.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.5];
 		self.tabItemsCollectionView = collectionView;
 
 		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
@@ -151,8 +152,10 @@
 
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[cv]|" options:0 metrics:nil views:vd]];
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[tabs]|" options:0 metrics:nil views:vd]];
-	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv][tabs]|" options:0 metrics:nil views:vd]];
+//	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv][tabs]|" options:0 metrics:nil views:vd]];
+	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv]|" options:0 metrics:nil views:vd]];
 
+	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[tabs]|" options:0 metrics:nil views:vd]];
 	self.tabsHeightConstraint = [NSLayoutConstraint constraintWithItem:self.tabItemsCollectionView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:54.0];
 	[self.tabItemsCollectionView addConstraint:self.tabsHeightConstraint];
 }
@@ -168,7 +171,6 @@
 
 	self.mainLayoutView.backgroundColor = [UIColor darkGrayColor];
 	self.mainContainerView.backgroundColor = [UIColor lightGrayColor];
-	self.tabItemsCollectionView.backgroundColor = [UIColor whiteColor];
 
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
 
