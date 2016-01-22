@@ -8,6 +8,13 @@
 
 #import "RTTabBarItem.h"
 
+@interface RTTabBarItem ()
+
+@property (nonatomic, weak) UIImage *image;
+@property (nonatomic, weak) UIImage *selectedImage;
+
+@end
+
 @implementation RTTabBarItem
 
 + (UINib *)nib {
@@ -21,23 +28,44 @@
 - (void)awakeFromNib {
 	[super awakeFromNib];
 
+	_image = nil;
+	_selectedImage = nil;
+
+	self.captionLabel.textColor = [UIColor grayColor];
+	self.iconView.tintColor = self.captionLabel.textColor;
+}
+
+- (void)prepareForReuse {
+	[super prepareForReuse];
+
+	_image = nil;
+	_selectedImage = nil;
 }
 
 - (void)populateWithCaption:(NSString *)caption icon:(UIImage *)image selectedIcon:(UIImage *)selectedImage {
 
+	self.image = image;
+	self.selectedImage = selectedImage;
+
 	self.captionLabel.text = caption;
-	if (self.selected && selectedImage != nil) {
-		self.iconView.image = selectedImage;
-	} else {
-		self.iconView.image = image;
-	}
+	[self populateIcon];
 }
 
 - (void)setSelected:(BOOL)selected {
 	[super setSelected:selected];
 
-	self.captionLabel.textColor = (selected) ? self.tintColor : nil;
-	self.iconView.tintColor = (selected) ? self.tintColor : nil;
+	self.captionLabel.textColor = (selected) ? self.tintColor : [UIColor grayColor];
+	self.iconView.tintColor = self.captionLabel.textColor;
+	[self populateIcon];
+}
+
+- (void)populateIcon {
+
+	if (self.selected && self.selectedImage != nil) {
+		self.iconView.image = self.selectedImage;
+	} else {
+		self.iconView.image = self.image;
+	}
 }
 
 @end

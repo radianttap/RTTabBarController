@@ -40,7 +40,10 @@
 	_selectedIndex = NSNotFound;
 	_selectedViewController = nil;
 	_tabsDataSource = nil;
+
 	_tabsScrollable = NO;
+	_leadingSidePanelEnabled = NO;
+	_trailingSidePanelEnabled = NO;
 
 	_maximumVisibleTabs = 5;
 
@@ -272,5 +275,12 @@
 	[self.tabItemsCollectionView reloadData];
 }
 
+- (void)setLeadingSidePanelEnabled:(BOOL)leadingSidePanelEnabled {
+
+}
+
+- (void)setTrailingSidePanelEnabled:(BOOL)trailingSidePanelEnabled {
+	
+}
 
 @end
