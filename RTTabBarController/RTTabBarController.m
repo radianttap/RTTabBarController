@@ -41,6 +41,7 @@
 	_selectedViewController = nil;
 	_tabsDataSource = nil;
 
+	_tabsSwitchable = NO;
 	_tabsScrollable = NO;
 	_leadingSidePanelEnabled = NO;
 	_trailingSidePanelEnabled = NO;
@@ -211,6 +212,7 @@
 
 	RTTabBarItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier] forIndexPath:indexPath];
 	cell.selected = (self.selectedIndex == indexPath.item);
+	cell.marker.hidden = !self.areTabsSwitchable;
 
 	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
 	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];

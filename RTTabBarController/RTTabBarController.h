@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, getter=isLeadingSidePanelEnabled) BOOL leadingSidePanelEnabled;
 @property (nonatomic, getter=isTrailingSidePanelEnabled) BOOL trailingSidePanelEnabled;
 
+@property (nonatomic, getter=areTabsSwitchable) BOOL tabsSwitchable;
+
 @property (nonatomic) NSInteger selectedIndex;
 @property (nullable, nonatomic, assign) __kindof UIViewController *selectedViewController;
 
