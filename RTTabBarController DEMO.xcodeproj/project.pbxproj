@@ -19,6 +19,7 @@
 		D0BD96621C51539A0014DA47 /* Icons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96611C51539A0014DA47 /* Icons.xcassets */; };
 		D0BD96641C5155DB0014DA47 /* SelectedIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96631C5155DB0014DA47 /* SelectedIcons.xcassets */; };
 		D0BD96671C51577E0014DA47 /* RTViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96661C51577E0014DA47 /* RTViewController.m */; };
+		D0BD966F1C529FD20014DA47 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD966E1C529FD20014DA47 /* Media.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		D0BD96631C5155DB0014DA47 /* SelectedIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = SelectedIcons.xcassets; sourceTree = "<group>"; };
 		D0BD96651C51577E0014DA47 /* RTViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTViewController.h; sourceTree = "<group>"; };
 		D0BD96661C51577E0014DA47 /* RTViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTViewController.m; sourceTree = "<group>"; };
+		D0BD966E1C529FD20014DA47 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +79,7 @@
 			children = (
 				D0BD96401C5136C60014DA47 /* AppDelegate.h */,
 				D0BD96411C5136C60014DA47 /* AppDelegate.m */,
+				D0BD966E1C529FD20014DA47 /* Media.xcassets */,
 				D0BD96611C51539A0014DA47 /* Icons.xcassets */,
 				D0BD96631C5155DB0014DA47 /* SelectedIcons.xcassets */,
 				D0BD963D1C5136C60014DA47 /* Supporting Files */,
@@ -169,6 +172,7 @@
 			files = (
 				D0BD965A1C5138E10014DA47 /* LICENSE in Resources */,
 				D0BD964D1C5136C60014DA47 /* LaunchScreen.storyboard in Resources */,
+				D0BD966F1C529FD20014DA47 /* Media.xcassets in Resources */,
 				D0BD96601C514B480014DA47 /* RTTabBarItem.xib in Resources */,
 				D0BD96621C51539A0014DA47 /* Icons.xcassets in Resources */,
 				D0BD964A1C5136C60014DA47 /* Assets.xcassets in Resources */,

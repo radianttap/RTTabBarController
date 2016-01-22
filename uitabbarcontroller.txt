@@ -1,0 +1,52 @@
+<UILayoutContainerView: 0x7fac2a1f05c0; frame = (0 0; 375 667); autoresize = W+H; layer = <CALayer: 0x7fac2a1e06a0>>
+   | <UITransitionView: 0x7fac2a1f1370; frame = (0 0; 375 667); clipsToBounds = YES; autoresize = W+H; layer = <CALayer: 0x7fac2a1ced10>>
+   |    | <UIViewControllerWrapperView: 0x7fac2a33b6e0; frame = (0 0; 375 667); autoresize = W+H; layer = <CALayer: 0x7fac2a33b6a0>>
+   | <UITabBar: 0x7fac2a1f0840; frame = (0 618; 375 49); autoresize = W+TM; layer = <CALayer: 0x7fac2a1d6250>>
+   |    | <_UITabBarBackgroundView: 0x7fac2a302020; frame = (0 0; 375 49); autoresize = W; userInteractionEnabled = NO; layer = <CALayer: 0x7fac2a308760>>
+   |    |    | <_UIBackdropView: 0x7fac2a33fa60; frame = (0 0; 375 49); opaque = NO; autoresize = W+H; userInteractionEnabled = NO; layer = <_UIBackdropViewLayer: 0x7fac2a33fd70>>
+   |    |    |    | <_UIBackdropEffectView: 0x7fac2a339700; frame = (0 0; 375 49); clipsToBounds = YES; opaque = NO; autoresize = W+H; userInteractionEnabled = NO; layer = <CABackdropLayer: 0x7fac2a307560>>
+   |    |    |    | <UIView: 0x7fac2a349ca0; frame = (0 0; 375 49); opaque = NO; autoresize = W+H; userInteractionEnabled = NO; layer = <CALayer: 0x7fac2a33a530>>
+   |    | <UIImageView: 0x7fac2a346f50; frame = (0 -0.5; 375 0.5); autoresize = W; userInteractionEnabled = NO; layer = <CALayer: 0x7fac2a336a60>>
+   |    | <UITabBarButton: 0x7fac2a1b1140; frame = (2 1; 371 48); opaque = NO; layer = <CALayer: 0x7fac2a1b7c90>>
+   |    |    | <UITabBarSwappableImageView: 0x7fac2a10f590; frame = (0 0; 0 0); opaque = NO; userInteractionEnabled = NO; layer = <CALayer: 0x7fac2a4028d0>>
+   |    |    | <UITabBarButtonLabel: 0x7fac2a1b13a0; frame = (0 0; 47.5 12); text = '⋮ TICKET'; opaque = NO; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x7fac2a1f3a10>>
+
+
+
+
+
+
+(lldb) pviews self.tabBarController.view
+<UILayoutContainerView: 0x7f9fe07b3a30; frame = (0 0; 375 667); autoresize = W+H; layer = <CALayer: 0x7f9fe07b3e50>>
+   | <UITransitionView: 0x7f9fe07b4e60; frame = (0 0; 375 667); clipsToBounds = YES; autoresize = W+H; layer = <CALayer: 0x7f9fe07b52a0>>
+   | <UITabBar: 0x7f9fe07b4310; frame = (0 618; 375 49); autoresize = W+TM; layer = <CALayer: 0x7f9fe07b4640>>
+   |    | <UITabBarButton: 0x7f9fe1167870; frame = (2 1; 371 48); opaque = NO; layer = <CALayer: 0x7f9fe1163300>>
+   |    |    | <UITabBarSwappableImageView: 0x7f9fe11681b0; frame = (0 0; 0 0); opaque = NO; userInteractionEnabled = NO; layer = <CALayer: 0x7f9fe1167840>>
+   |    |    | <UITabBarButtonLabel: 0x7f9fe1167ad0; frame = (0 0; 76.5 20.5); text = '⋮ TICKET'; opaque = NO; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x7f9fe1167080>>
+
+
+
+
+
+
+(lldb) pviews self.tabBarController.view
+<UILayoutContainerView: 0x7f9fe07b3a30; frame = (0 0; 375 667); autoresize = W+H; layer = <CALayer: 0x7f9fe07b3e50>>
+   | <UITransitionView: 0x7f9fe07b4e60; frame = (0 0; 375 667); clipsToBounds = YES; autoresize = W+H; layer = <CALayer: 0x7f9fe07b52a0>>
+   |    | <UIViewControllerWrapperView: 0x7f9fe116ba10; frame = (0 0; 375 667); autoresize = W+H; layer = <CALayer: 0x7f9fe116bd80>>
+   |    |    | <UIView: 0x7f9fe1165380; frame = (0 0; 375 667); autoresize = W+H; layer = <CALayer: 0x7f9fe1165f40>>
+   |    |    |    | <UIButton: 0x7f9fe116ae80; frame = (147 316.5; 81 34); opaque = NO; layer = <CALayer: 0x7f9fe1169de0>>
+   |    |    |    |    | <UIButtonLabel: 0x7f9fe0417660; frame = (0 6.5; 81 21.5); text = 'Go import'; opaque = NO; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x7f9fe042eb20>>
+   |    |    |    | <UIButton: 0x7f9fe1001ac0; frame = (133.5 350.5; 108 34); opaque = NO; layer = <CALayer: 0x7f9fe1001880>>
+   |    |    |    |    | <UIButtonLabel: 0x7f9fe07d4820; frame = (0.5 6.5; 107.5 21.5); text = 'Kill write PSC'; opaque = NO; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x7f9fe07b8720>>
+   | <UITabBar: 0x7f9fe07b4310; frame = (0 618; 375 49); autoresize = W+TM; layer = <CALayer: 0x7f9fe07b4640>>
+   |    | <_UITabBarBackgroundView: 0x7f9fe1003380; frame = (0 0; 375 49); autoresize = W; userInteractionEnabled = NO; layer = <CALayer: 0x7f9fe1002d80>>
+   |    |    | <_UIBackdropView: 0x7f9fe11233c0; frame = (0 0; 375 49); opaque = NO; autoresize = W+H; userInteractionEnabled = NO; layer = <_UIBackdropViewLayer: 0x7f9fe1165f10>>
+   |    |    |    | <_UIBackdropEffectView: 0x7f9fe07c0a80; frame = (0 0; 375 49); clipsToBounds = YES; opaque = NO; autoresize = W+H; userInteractionEnabled = NO; layer = <CABackdropLayer: 0x7f9fe07186b0>>
+   |    |    |    | <UIView: 0x7f9fe11634a0; frame = (0 0; 375 49); hidden = YES; opaque = NO; autoresize = W+H; userInteractionEnabled = NO; layer = <CALayer: 0x7f9fe1170ed0>>
+   |    | <UITabBarButton: 0x7f9fe1167870; frame = (2 1; 371 48); opaque = NO; layer = <CALayer: 0x7f9fe1163300>>
+   |    |    | <UITabBarSwappableImageView: 0x7f9fe11681b0; frame = (185 18; 0 0); opaque = NO; userInteractionEnabled = NO; layer = <CALayer: 0x7f9fe1167840>>
+   |    |    | <UITabBarButtonLabel: 0x7f9fe1167ad0; frame = (161.5 35; 47.5 12); text = '⋮ TICKET'; opaque = NO; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x7f9fe1167080>>
+   |    |    |    | <_UILabelContentLayer: 0x7f9fe11614a0> (layer)
+   |    | <UIImageView: 0x7f9fe11661f0; frame = (0 -0.5; 375 0.5); autoresize = W; userInteractionEnabled = NO; layer = <CALayer: 0x7f9fe11663a0>>
+
+(lldb) 
