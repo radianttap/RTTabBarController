@@ -20,6 +20,7 @@
 		D0BD96641C5155DB0014DA47 /* SelectedIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD96631C5155DB0014DA47 /* SelectedIcons.xcassets */; };
 		D0BD96671C51577E0014DA47 /* RTViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96661C51577E0014DA47 /* RTViewController.m */; };
 		D0BD966F1C529FD20014DA47 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0BD966E1C529FD20014DA47 /* Media.xcassets */; };
+		D0BD96731C53CBDA0014DA47 /* RTTabPickerController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0BD96721C53CBDA0014DA47 /* RTTabPickerController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,8 @@
 		D0BD96651C51577E0014DA47 /* RTViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTViewController.h; sourceTree = "<group>"; };
 		D0BD96661C51577E0014DA47 /* RTViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTViewController.m; sourceTree = "<group>"; };
 		D0BD966E1C529FD20014DA47 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
+		D0BD96711C53CBDA0014DA47 /* RTTabPickerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTTabPickerController.h; sourceTree = "<group>"; };
+		D0BD96721C53CBDA0014DA47 /* RTTabPickerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTTabPickerController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +111,8 @@
 				D0BD965C1C514B480014DA47 /* RTTabBarItem.h */,
 				D0BD965D1C514B480014DA47 /* RTTabBarItem.m */,
 				D0BD965E1C514B480014DA47 /* RTTabBarItem.xib */,
+				D0BD96711C53CBDA0014DA47 /* RTTabPickerController.h */,
+				D0BD96721C53CBDA0014DA47 /* RTTabPickerController.m */,
 			);
 			path = RTTabBarController;
 			sourceTree = "<group>";
@@ -188,6 +193,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D0BD96571C51376B0014DA47 /* RTTabBarController.m in Sources */,
+				D0BD96731C53CBDA0014DA47 /* RTTabPickerController.m in Sources */,
 				D0BD96421C5136C60014DA47 /* AppDelegate.m in Sources */,
 				D0BD965B1C5138E10014DA47 /* README.md in Sources */,
 				D0BD965F1C514B480014DA47 /* RTTabBarItem.m in Sources */,

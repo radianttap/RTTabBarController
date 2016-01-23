@@ -8,8 +8,9 @@
 
 #import "RTTabBarController.h"
 #import "RTTabBarItem.h"
+#import "RTTabPickerController.h"
 
-@interface RTTabBarController () < UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout >
+@interface RTTabBarController () < UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, RTTabPickerControllerDelegate >
 
 @property (nonatomic, strong) UIScrollView *layoutWrapperView;
 
@@ -19,6 +20,9 @@
 
 @property (nonatomic, strong) UIView *mainContainerView;
 @property (nonatomic, strong) UICollectionView *tabItemsCollectionView;
+@property (nonatomic, strong) UILongPressGestureRecognizer *tabPickerGR;
+@property (nonatomic, strong) RTTabPickerController *tabPicker;
+@property (nullable, nonatomic, strong) NSIndexPath *pickerIndexPath;
 
 @property (nonatomic, strong) UIVisualEffectView *mainCoverView;
 @property (nonatomic, strong) UITapGestureRecognizer *coverTapGR;
@@ -33,9 +37,8 @@
 @property (nonatomic, strong) NSLayoutConstraint *trailingSideWidthMatchConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *tabsHeightConstraint;
 
-@property (nullable, nonatomic, copy) NSArray<__kindof UITabBarItem *> *tabsDataSource;
-
-@property (nullable, nonatomic, copy) NSMutableArray<__kindof UIViewController *> *visibleViewControllers;
+@property (nullable, nonatomic, strong) NSMutableArray<__kindof UITabBarItem *> *tabsDataSource;
+@property (nullable, nonatomic, strong) NSMutableArray<__kindof UIViewController *> *visibleViewControllers;
 
 @end
 
@@ -158,7 +161,7 @@
 		UICollectionViewFlowLayout *layout = [UICollectionViewFlowLayout new];
 		layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
 		layout.itemSize = CGSizeMake(44, 54);
-		layout.minimumLineSpacing = 1;
+		layout.minimumLineSpacing = 0;
 		layout.minimumInteritemSpacing = 0;
 		layout.sectionInset = UIEdgeInsetsZero;
 
@@ -207,6 +210,7 @@
 #pragma mark - Cover view behavior
 
 - (void)setupCoverView {
+	if (self.tabBarMode == RTTabBarControllerModeScrollable) return;
 
 	UITapGestureRecognizer *tapgr = [UITapGestureRecognizer new];
 	[tapgr addTarget:self action:@selector(coverViewTapped:)];
@@ -227,6 +231,63 @@
 	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
 }
 
+#pragma mark - Tab picker
+
+- (void)setupTabPicker {
+	if (self.tabBarMode != RTTabBarControllerModeSwitchable) return;
+
+	UILongPressGestureRecognizer *gr = [UILongPressGestureRecognizer new];
+	[gr addTarget:self action:@selector(tabPickerInitiated:)];
+	[self.tabItemsCollectionView addGestureRecognizer:gr];
+	self.tabPickerGR = gr;
+}
+
+- (void)tabPickerInitiated:(UILongPressGestureRecognizer *)gr {
+
+	if (gr.state == UIGestureRecognizerStateBegan) {
+		CGPoint p = [gr locationInView:gr.view];
+		NSIndexPath *indexPath = [self.tabItemsCollectionView indexPathForItemAtPoint:p];
+		if (!indexPath) return;
+		BOOL isLeadingSidePanelItem = (indexPath.item == 0 && self.isLeadingSidePanelEnabled);
+		BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
+		if (isLeadingSidePanelItem || isTrailingSidePanelItem) return;
+
+		self.pickerIndexPath = indexPath;
+		UICollectionViewLayoutAttributes *attr = [self.tabItemsCollectionView layoutAttributesForItemAtIndexPath:indexPath];
+		CGPoint realPoint = attr.frame.origin;
+
+		RTTabPickerController *picker = [RTTabPickerController new];
+		picker.delegate = self;
+		picker.leftEdgeOffset = realPoint.x;
+		//	width of the picker's CV
+		CGFloat w = self.tabItemsCollectionView.bounds.size.width;
+		picker.cvWidth = w / self.maximumVisibleTabs;
+		//	data source
+		NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
+		picker.dataSource = arr;
+		//	show it
+		[self loadController:picker intoView:self.mainContainerView];
+		self.tabPicker = picker;
+	}
+}
+
+//- (void)tabPickerController:(RTTabPickerController *)controller didSelectVC:(UIViewController *)vc {}
+- (void)tabPickerController:(RTTabPickerController *)controller didSelectItemAtIndex:(NSInteger)index {
+
+	UIViewController *vc = controller.dataSource[index];
+	self.visibleViewControllers[self.pickerIndexPath.item] = vc;
+	self.tabsDataSource[self.pickerIndexPath.item] = vc.tabBarItem;
+	[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[self.pickerIndexPath]];
+
+	if (self.selectedIndex == self.pickerIndexPath.item) {
+		self.selectedViewController = self.visibleViewControllers[self.selectedIndex];
+	}
+
+	[self removeController:self.tabPicker];
+	self.tabPicker = nil;
+	self.pickerIndexPath = nil;
+}
+
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad {
@@ -240,6 +301,7 @@
 	[self setupCoverView];
 
 	[self processViewControllers];
+	[self setupTabPicker];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -271,7 +333,7 @@
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-	return self.viewControllers.count;
+	return self.tabsDataSource.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -336,12 +398,18 @@
 	NSMutableArray <UITabBarItem*> *marr = [NSMutableArray array];
 	NSMutableArray <__kindof UIViewController*> *varr = [NSMutableArray array];
 	[self.viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull vc, NSUInteger idx, BOOL * _Nonnull stop) {
-		if (idx < self.maximumVisibleTabs) {
-			[varr addObject:vc];
+		if (self.tabBarMode == RTTabBarControllerModeSwitchable || self.tabBarMode == RTTabBarControllerModeNormal) {
+			if (idx >= self.maximumVisibleTabs) {
+				*stop = YES;
+				return;
+			}
 		}
+		[varr addObject:vc];
+
 		UITabBarItem *tbi = vc.tabBarItem;
 		[marr addObject:tbi];
 	}];
+
 	self.visibleViewControllers = varr;
 	self.tabsDataSource = marr;
 	[self.tabItemsCollectionView reloadData];
@@ -352,7 +420,7 @@
 		} else {
 			_selectedIndex = 0;
 		}
-		_selectedViewController = self.viewControllers[self.selectedIndex];
+		_selectedViewController = self.visibleViewControllers[self.selectedIndex];
 	}
 
 	[self displaySelectedController];
@@ -462,7 +530,7 @@
 	if (_selectedIndex == selectedIndex) return;
 	[self removeController:self.selectedViewController];
 	_selectedIndex = selectedIndex;
-	_selectedViewController = self.viewControllers[selectedIndex];
+	_selectedViewController = self.visibleViewControllers[selectedIndex];
 
 	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
 	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
@@ -475,7 +543,7 @@
 	if (_selectedViewController == selectedViewController) return;
 	[self removeController:self.selectedViewController];
 	_selectedViewController = selectedViewController;
-	_selectedIndex = [self.viewControllers indexOfObject:selectedViewController];
+	_selectedIndex = [self.visibleViewControllers indexOfObject:selectedViewController];
 
 	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
 	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
