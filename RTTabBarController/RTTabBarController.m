@@ -232,11 +232,7 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 
-	//	debug colors
-//	self.layoutWrapperView.backgroundColor = [UIColor blackColor];
-//	self.leadingSideContainerView.backgroundColor = [UIColor yellowColor];
-//	self.trailingSideContainerView.backgroundColor = [UIColor orangeColor];
-
+	self.layoutWrapperView.backgroundColor = [UIColor blackColor];
 	self.mainLayoutView.backgroundColor = [UIColor darkGrayColor];
 	self.mainContainerView.backgroundColor = [UIColor lightGrayColor];
 
