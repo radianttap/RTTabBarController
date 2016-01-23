@@ -78,6 +78,7 @@
 	{
 		UIView *v = [UIView new];
 		v.translatesAutoresizingMaskIntoConstraints = NO;
+		v.clipsToBounds = YES;
 		[self.layoutWrapperView addSubview:v];
 		self.leadingSideContainerView = v;
 	}
@@ -85,6 +86,7 @@
 	{
 		UIView *v = [UIView new];
 		v.translatesAutoresizingMaskIntoConstraints = NO;
+		v.clipsToBounds = YES;
 		[self.layoutWrapperView addSubview:v];
 		self.mainLayoutView = v;
 	}
@@ -92,6 +94,7 @@
 	{
 		UIView *v = [UIView new];
 		v.translatesAutoresizingMaskIntoConstraints = NO;
+		v.clipsToBounds = YES;
 		[self.layoutWrapperView addSubview:v];
 		self.trailingSideContainerView = v;
 	}
@@ -283,13 +286,27 @@
 - (void)processViewControllers {
 
 	NSMutableArray <UITabBarItem*> *marr = [NSMutableArray array];
+	NSMutableArray <__kindof UIViewController*> *varr = [NSMutableArray array];
 	[self.viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull vc, NSUInteger idx, BOOL * _Nonnull stop) {
+		if (idx < self.maximumVisibleTabs) {
+			[varr addObject:vc];
+		}
 		UITabBarItem *tbi = vc.tabBarItem;
 		[marr addObject:tbi];
 	}];
-
+	self.visibleViewControllers = varr;
 	self.tabsDataSource = marr;
 	[self.tabItemsCollectionView reloadData];
+
+	if (self.selectedIndex == NSNotFound) {
+		if (self.isLeadingSidePanelEnabled) {
+			_selectedIndex = 1;
+		} else {
+			_selectedIndex = 0;
+		}
+		_selectedViewController = self.viewControllers[self.selectedIndex];
+	}
+
 	[self displaySelectedController];
 }
 
@@ -399,8 +416,6 @@
 	//	SETUP NEW Controllers
 
 	_viewControllers = viewControllers;
-	if (self.selectedIndex == NSNotFound) _selectedIndex = 0;
-	_selectedViewController = viewControllers[self.selectedIndex];
 	if (!self.isViewLoaded) return;
 
 	[self processViewControllers];
