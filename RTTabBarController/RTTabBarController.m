@@ -24,7 +24,7 @@
 @property (nonatomic, strong) RTTabPickerController *tabPicker;
 @property (nullable, nonatomic, strong) NSIndexPath *pickerIndexPath;
 
-@property (nonatomic, strong) UIVisualEffectView *mainCoverView;
+@property (nonatomic, strong) UIView *mainCoverView;
 @property (nonatomic, strong) UITapGestureRecognizer *coverTapGR;
 @property (nonatomic, getter=isLeadingSidePanelShown) BOOL leadingSidePanelShown;
 @property (nonatomic, getter=isTrailingSidePanelShown) BOOL trailingSidePanelShown;
@@ -65,6 +65,8 @@
 
 	_maximumVisibleTabs = 5;
 	_visibleViewControllers = [NSMutableArray array];
+
+	_blurMainContentWhenSidePanelAppears = NO;
 
 	return self;
 }
@@ -181,12 +183,21 @@
 	}
 
 	{
-		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
-		UIVisualEffectView *coverView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-		coverView.translatesAutoresizingMaskIntoConstraints = NO;
-		coverView.hidden = YES;
-		self.mainCoverView = coverView;
-		[self.mainLayoutView addSubview:coverView];
+		if (self.shouldBlurMainContentWhenSidePanelAppears) {
+			UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+			UIVisualEffectView *coverView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+			coverView.translatesAutoresizingMaskIntoConstraints = NO;
+			coverView.hidden = YES;
+			self.mainCoverView = coverView;
+			[self.mainLayoutView addSubview:coverView];
+		} else {
+			UIView *v = [UIView new];
+			v.translatesAutoresizingMaskIntoConstraints = NO;
+			v.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:.6];
+			v.hidden = YES;
+			self.mainCoverView = v;
+			[self.mainLayoutView addSubview:v];
+		}
 	}
 
 	//	layout
