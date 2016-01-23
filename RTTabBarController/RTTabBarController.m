@@ -24,6 +24,8 @@
 @property (nonatomic, strong) UITapGestureRecognizer *coverTapGR;
 @property (nonatomic, getter=isLeadingSidePanelShown) BOOL leadingSidePanelShown;
 @property (nonatomic, getter=isTrailingSidePanelShown) BOOL trailingSidePanelShown;
+@property (nonatomic) CGFloat leadingSidePanelBufferWidth;
+@property (nonatomic) CGFloat trailingSidePanelBufferWidth;
 
 @property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthMatchConstraint;
@@ -34,8 +36,6 @@
 @property (nullable, nonatomic, copy) NSArray<__kindof UITabBarItem *> *tabsDataSource;
 
 @property (nullable, nonatomic, copy) NSMutableArray<__kindof UIViewController *> *visibleViewControllers;
-
-@property (nonatomic) CGFloat leadingSidePanelBufferWidth;
 
 @end
 
@@ -58,6 +58,7 @@
 	_trailingSidePanelEnabled = NO;
 
 	_leadingSidePanelBufferWidth = 44.0;
+	_trailingSidePanelBufferWidth = 44.0;
 	_leadingSidePanelShown = NO;
 	_trailingSidePanelShown = NO;
 
@@ -136,6 +137,11 @@
 
 	self.trailingSideWidthConstraint = [NSLayoutConstraint constraintWithItem:self.trailingSideContainerView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:0];
 	[self.trailingSideContainerView addConstraint:self.trailingSideWidthConstraint];
+	self.trailingSideWidthConstraint.active = YES;
+	//	when enabled they should match the width of the screen - 44.0, as option to tap and go back
+	self.trailingSideWidthMatchConstraint = [NSLayoutConstraint constraintWithItem:self.trailingSideContainerView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:-self.trailingSidePanelBufferWidth];
+	[self.view addConstraint:self.trailingSideWidthMatchConstraint];
+	self.trailingSideWidthMatchConstraint.active = NO;
 
 	[self populateMainLayoutView];
 }
@@ -213,6 +219,8 @@
 
 	if (self.isLeadingSidePanelShown) {
 		[self hideLeadingSidePanel];
+	} else if (self.isTrailingSidePanelShown) {
+		[self hideTrailingSidePanel];
 	}
 
 	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
@@ -228,6 +236,7 @@
 //	self.layoutWrapperView.backgroundColor = [UIColor blackColor];
 //	self.leadingSideContainerView.backgroundColor = [UIColor yellowColor];
 //	self.trailingSideContainerView.backgroundColor = [UIColor orangeColor];
+
 	self.mainLayoutView.backgroundColor = [UIColor darkGrayColor];
 	self.mainContainerView.backgroundColor = [UIColor lightGrayColor];
 
@@ -294,7 +303,7 @@
 		[collectionView deselectItemAtIndexPath:indexPath animated:NO];
 		return;
 	} else if (isTrailingSidePanelItem) {
-
+		[self revealTrailingSidePanel];
 		[collectionView deselectItemAtIndexPath:indexPath animated:NO];
 		return;
 	}
@@ -403,6 +412,49 @@
 					 }];
 }
 
+- (void)revealTrailingSidePanel {
+
+	UIViewController *vc = self.visibleViewControllers.lastObject;
+	[self loadController:vc intoView:self.trailingSideContainerView];
+
+	self.trailingSideWidthConstraint.active = NO;
+	self.trailingSideWidthMatchConstraint.active = YES;
+	[UIView animateWithDuration:.4
+						  delay:0
+		 usingSpringWithDamping:.96
+		  initialSpringVelocity:12
+						options:0
+					 animations:^{
+						 [self.view layoutIfNeeded];
+						 [self.layoutWrapperView scrollRectToVisible:self.trailingSideContainerView.frame animated:NO];
+						 self.mainCoverView.hidden = NO;
+					 } completion:^(BOOL finished) {
+						 if (!finished) return;
+						 self.trailingSidePanelShown = YES;
+					 }];
+}
+
+- (void)hideTrailingSidePanel {
+
+	UIViewController *vc = self.visibleViewControllers.lastObject;
+	[self removeController:vc];
+
+	self.trailingSideWidthMatchConstraint.active = NO;
+	self.trailingSideWidthConstraint.active = YES;
+	[UIView animateWithDuration:.4
+						  delay:0
+		 usingSpringWithDamping:.96
+		  initialSpringVelocity:12
+						options:0
+					 animations:^{
+						 [self.view layoutIfNeeded];
+						 [self.layoutWrapperView scrollRectToVisible:self.mainLayoutView.frame animated:NO];
+						 self.mainCoverView.hidden = YES;
+					 } completion:^(BOOL finished) {
+						 if (!finished) return;
+						 self.trailingSidePanelShown = NO;
+					 }];
+}
 
 
 
