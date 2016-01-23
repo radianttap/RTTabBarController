@@ -33,7 +33,7 @@
 
 	self.captionLabel.textColor = [UIColor grayColor];
 	self.iconView.tintColor = self.captionLabel.textColor;
-	self.marker.tintColor = [UIColor darkGrayColor];
+	self.marker.tintColor = [UIColor grayColor];
 }
 
 - (void)prepareForReuse {

@@ -19,11 +19,12 @@
                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ffY-vk-Vsh">
-                        <rect key="frame" x="0.0" y="0.0" width="44" height="40"/>
+                    <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon-bookmarks" translatesAutoresizingMaskIntoConstraints="NO" id="ffY-vk-Vsh">
+                        <rect key="frame" x="6" y="0.0" width="32" height="40"/>
                     </imageView>
                     <imageView hidden="YES" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" image="marker" translatesAutoresizingMaskIntoConstraints="NO" id="o6P-07-YJg">
-                        <rect key="frame" x="42" y="9" width="2" height="22"/>
+                        <rect key="frame" x="40" y="9" width="2" height="22"/>
+                        <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                     </imageView>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -31,13 +32,12 @@
             <constraints>
                 <constraint firstItem="Q1j-o7-hpI" firstAttribute="top" secondItem="ffY-vk-Vsh" secondAttribute="bottom" id="0KN-Bv-RVG"/>
                 <constraint firstItem="o6P-07-YJg" firstAttribute="centerY" secondItem="ffY-vk-Vsh" secondAttribute="centerY" id="0QF-jU-ANJ"/>
-                <constraint firstItem="ffY-vk-Vsh" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="4bc-uy-LLD"/>
+                <constraint firstItem="ffY-vk-Vsh" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="6EY-gj-NJ9"/>
                 <constraint firstItem="Q1j-o7-hpI" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="GOp-J4-mm8"/>
                 <constraint firstAttribute="trailing" secondItem="Q1j-o7-hpI" secondAttribute="trailing" id="JEf-uW-udq"/>
                 <constraint firstItem="Q1j-o7-hpI" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="Y9A-vj-5Lo"/>
-                <constraint firstAttribute="trailing" secondItem="o6P-07-YJg" secondAttribute="trailing" id="ax5-63-fCW"/>
+                <constraint firstItem="o6P-07-YJg" firstAttribute="leading" secondItem="ffY-vk-Vsh" secondAttribute="trailing" constant="2" id="hCL-0t-A56"/>
                 <constraint firstItem="ffY-vk-Vsh" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="knA-GD-P3a"/>
-                <constraint firstAttribute="trailing" secondItem="ffY-vk-Vsh" secondAttribute="trailing" id="vfc-TI-8Bn"/>
                 <constraint firstAttribute="bottom" secondItem="Q1j-o7-hpI" secondAttribute="bottom" id="xwI-tW-Lq6"/>
             </constraints>
             <size key="customSize" width="50" height="86"/>
@@ -50,6 +50,7 @@
         </collectionViewCell>
     </objects>
     <resources>
+        <image name="icon-bookmarks" width="32" height="32"/>
         <image name="marker" width="2" height="22"/>
     </resources>
 </document>
