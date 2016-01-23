@@ -20,6 +20,11 @@
 @property (nonatomic, strong) UIView *mainContainerView;
 @property (nonatomic, strong) UICollectionView *tabItemsCollectionView;
 
+@property (nonatomic, strong) UIVisualEffectView *mainCoverView;
+@property (nonatomic, strong) UITapGestureRecognizer *coverTapGR;
+@property (nonatomic, getter=isLeadingSidePanelShown) BOOL leadingSidePanelShown;
+@property (nonatomic, getter=isTrailingSidePanelShown) BOOL trailingSidePanelShown;
+
 @property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthMatchConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *trailingSideWidthConstraint;
@@ -53,6 +58,8 @@
 	_trailingSidePanelEnabled = NO;
 
 	_leadingSidePanelBufferWidth = 44.0;
+	_leadingSidePanelShown = NO;
+	_trailingSidePanelShown = NO;
 
 	_maximumVisibleTabs = 5;
 	_visibleViewControllers = [NSMutableArray array];
@@ -166,8 +173,17 @@
 		[self.mainLayoutView addSubview:collectionView];
 	}
 
+	{
+		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+		UIVisualEffectView *coverView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+		coverView.translatesAutoresizingMaskIntoConstraints = NO;
+		coverView.hidden = YES;
+		self.mainCoverView = coverView;
+		[self.mainLayoutView addSubview:coverView];
+	}
+
 	//	layout
-	NSDictionary *vd = @{@"cv": self.mainContainerView, @"tabs": self.tabItemsCollectionView};
+	NSDictionary *vd = @{@"cv": self.mainContainerView, @"tabs": self.tabItemsCollectionView, @"cover": self.mainCoverView};
 
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[cv]|" options:0 metrics:nil views:vd]];
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[tabs]|" options:0 metrics:nil views:vd]];
@@ -177,6 +193,30 @@
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[tabs]|" options:0 metrics:nil views:vd]];
 	self.tabsHeightConstraint = [NSLayoutConstraint constraintWithItem:self.tabItemsCollectionView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:54.0];
 	[self.tabItemsCollectionView addConstraint:self.tabsHeightConstraint];
+
+	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[cover]|" options:0 metrics:nil views:vd]];
+	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cover]|" options:0 metrics:nil views:vd]];
+}
+
+#pragma mark - Cover view behavior
+
+- (void)setupCoverView {
+
+	UITapGestureRecognizer *tapgr = [UITapGestureRecognizer new];
+	[tapgr addTarget:self action:@selector(coverViewTapped:)];
+	[self.mainCoverView addGestureRecognizer:tapgr];
+	self.mainCoverView.userInteractionEnabled = YES;
+	self.coverTapGR = tapgr;
+}
+
+- (void)coverViewTapped:(UITapGestureRecognizer *)gr {
+
+	if (self.isLeadingSidePanelShown) {
+		[self hideLeadingSidePanel];
+	}
+
+	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
+	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
 }
 
 #pragma mark - View lifecycle
@@ -192,6 +232,7 @@
 	self.mainContainerView.backgroundColor = [UIColor lightGrayColor];
 
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
+	[self setupCoverView];
 
 	[self processViewControllers];
 }
@@ -250,9 +291,11 @@
 	BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
 	if (isLeadingSidePanelItem) {
 		[self revealLeadingSidePanel];
+		[collectionView deselectItemAtIndexPath:indexPath animated:NO];
 		return;
 	} else if (isTrailingSidePanelItem) {
 
+		[collectionView deselectItemAtIndexPath:indexPath animated:NO];
 		return;
 	}
 
@@ -332,7 +375,11 @@
 						options:0
 					 animations:^{
 						 [self.view layoutIfNeeded];
-					 } completion:nil];
+						 self.mainCoverView.hidden = NO;
+					 } completion:^(BOOL finished) {
+						 if (!finished) return;
+						 self.leadingSidePanelShown = YES;
+					 }];
 }
 
 - (void)hideLeadingSidePanel {
@@ -349,7 +396,11 @@
 						options:0
 					 animations:^{
 						 [self.view layoutIfNeeded];
-					 } completion:nil];
+						 self.mainCoverView.hidden = YES;
+					 } completion:^(BOOL finished) {
+						 if (!finished) return;
+						 self.leadingSidePanelShown = NO;
+					 }];
 }
 
 
