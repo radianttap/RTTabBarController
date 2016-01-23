@@ -262,19 +262,25 @@
 		//	width of the picker's CV
 		CGFloat w = self.tabItemsCollectionView.bounds.size.width;
 		picker.cvWidth = w / self.maximumVisibleTabs;
-		//	data source
+		//	needed for height
 		NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
-		picker.dataSource = arr;
+		picker.numberOfItems = arr.count;
 		//	show it
 		[self loadController:picker intoView:self.mainContainerView];
 		self.tabPicker = picker;
 	}
 }
 
-//- (void)tabPickerController:(RTTabPickerController *)controller didSelectVC:(UIViewController *)vc {}
+- (NSArray<UIViewController *> *)itemsForTabPickerController:(RTTabPickerController *)controller {
+
+	NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
+	return arr;
+}
+
 - (void)tabPickerController:(RTTabPickerController *)controller didSelectItemAtIndex:(NSInteger)index {
 
-	UIViewController *vc = controller.dataSource[index];
+	NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
+	UIViewController *vc = arr[index];
 	self.visibleViewControllers[self.pickerIndexPath.item] = vc;
 	self.tabsDataSource[self.pickerIndexPath.item] = vc.tabBarItem;
 	[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[self.pickerIndexPath]];

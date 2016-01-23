@@ -15,6 +15,9 @@
 
 
 @interface RTTabPickerLayout : UICollectionViewFlowLayout
+
+@property (nonatomic, strong) NSMutableDictionary *cachedLayoutAttributes;
+
 @end
 
 @implementation RTTabPickerLayout
@@ -29,7 +32,39 @@
 	self.minimumInteritemSpacing = 0;
 	self.sectionInset = UIEdgeInsetsZero;
 
+	_cachedLayoutAttributes = [NSMutableDictionary dictionary];
+
 	return self;
+}
+
+- (NSArray<UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect {
+
+	NSArray<UICollectionViewLayoutAttributes *> *attrs = [super layoutAttributesForElementsInRect:rect];
+
+	[attrs enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+		self.cachedLayoutAttributes[obj.indexPath] = obj;
+	}];
+
+	return attrs;
+}
+
+
+- (UICollectionViewLayoutAttributes *)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath {
+
+	UICollectionViewLayoutAttributes *attr = [[self layoutAttributesForItemAtIndexPath:itemIndexPath] copy];
+	CGRect f = attr.frame;
+	f.origin.y = self.collectionView.bounds.size.height * 2;
+	attr.frame = f;
+	return attr;
+}
+
+- (UICollectionViewLayoutAttributes *)finalLayoutAttributesForDisappearingItemAtIndexPath:(NSIndexPath *)itemIndexPath {
+
+	UICollectionViewLayoutAttributes *attr = [self.cachedLayoutAttributes[itemIndexPath] copy];
+	CGRect f = attr.frame;
+	f.origin.y = self.collectionView.bounds.size.height;
+	attr.frame = f;
+	return attr;
 }
 
 @end
@@ -43,6 +78,9 @@
 
 @property (nonatomic, strong) NSLayoutConstraint *leftEdgeConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *widthConstraint;
+
+@property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *dataSource;
+@property (nonatomic, copy) NSArray<NSIndexPath *> *indexPaths;
 
 @end
 
@@ -101,7 +139,7 @@
 	self.widthConstraint = [NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:w];
 	[self.collectionView addConstraint:self.widthConstraint];
 	//	height
-	CGFloat h = self.dataSource.count * 54.0 + (self.dataSource.count - 1) * 8.0;
+	CGFloat h = self.numberOfItems * 54.0 + (self.numberOfItems - 1) * 8.0;
 	[self.collectionView addConstraint:[NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:h]];
 	//	vertical constraints
 	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[cv]|" options:0 metrics:nil views:vd]];
@@ -117,6 +155,23 @@
     
 	[self.collectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
 }
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+
+	self.dataSource = [self.delegate itemsForTabPickerController:self];
+	NSMutableArray *marr = [NSMutableArray array];
+	[self.dataSource enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+		NSIndexPath *indexPath = [NSIndexPath indexPathForItem:idx inSection:0];
+		[marr addObject:indexPath];
+	}];
+	self.indexPaths = marr;
+	[self.collectionView performBatchUpdates:^{
+		[self.collectionView insertItemsAtIndexPaths:marr];
+	} completion:nil];
+}
+
+#pragma mark - Collection View
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
 
@@ -147,7 +202,12 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
 
-	[self.delegate tabPickerController:self didSelectItemAtIndex:indexPath.item];
+	self.dataSource = nil;
+	[self.collectionView performBatchUpdates:^{
+		[self.collectionView deleteItemsAtIndexPaths:self.indexPaths];
+	} completion:^(BOOL finished) {
+		[self.delegate tabPickerController:self didSelectItemAtIndex:indexPath.item];
+	}];
 }
 
 

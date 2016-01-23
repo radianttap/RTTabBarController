@@ -14,17 +14,19 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RTTabPickerController : UIViewController
 
 @property (nonatomic, weak) id< RTTabPickerControllerDelegate > delegate;
-@property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *dataSource;
 @property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic) NSInteger numberOfItems;
 
 @property (nonatomic) CGFloat leftEdgeOffset;
 @property (nonatomic) CGFloat cvWidth;
 
+@property (nullable, nonatomic, copy, readonly) NSArray<__kindof UIViewController *> *dataSource;
+
 @end
 
 @protocol RTTabPickerControllerDelegate <NSObject>
+- (NSArray<__kindof UIViewController *> *)itemsForTabPickerController:(RTTabPickerController *)controller;
 - (void)tabPickerController:(RTTabPickerController *)controller didSelectItemAtIndex:(NSInteger)index;
-//- (void)tabPickerController:(RTTabPickerController *)controller didSelectVC:(UIViewController *)vc;
 @end
 
 NS_ASSUME_NONNULL_END
