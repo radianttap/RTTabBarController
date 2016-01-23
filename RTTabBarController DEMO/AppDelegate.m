@@ -79,11 +79,8 @@
 	}
 
 	RTTabBarController *tc = [RTTabBarController new];
-	tc.tabsSwitchable = YES;
 	tc.viewControllers = marr;
 	self.window.rootViewController = tc;
-
-	self.window.tintColor = [UIColor redColor];
 
 	return YES;
 }

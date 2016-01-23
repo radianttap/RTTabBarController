@@ -26,6 +26,8 @@
 
 @property (nullable, nonatomic, copy) NSArray<__kindof UITabBarItem *> *tabsDataSource;
 
+@property (nullable, nonatomic, copy) NSMutableArray<__kindof UIViewController *> *visibleViewControllers;
+
 @end
 
 @implementation RTTabBarController
@@ -39,14 +41,15 @@
 	_tabsDataSource = nil;
 	_selectedIndex = NSNotFound;
 	_selectedViewController = nil;
-	_tabsDataSource = nil;
+	_leadingSidePanelViewController = nil;
+	_trailingSidePanelViewController = nil;
 
-	_tabsSwitchable = NO;
-	_tabsScrollable = NO;
+	_tabBarMode = RTTabBarControllerModeSwitchable;
 	_leadingSidePanelEnabled = NO;
 	_trailingSidePanelEnabled = NO;
 
 	_maximumVisibleTabs = 5;
+	_visibleViewControllers = [NSMutableArray array];
 
 	return self;
 }
@@ -135,7 +138,7 @@
 		collectionView.translatesAutoresizingMaskIntoConstraints = NO;
 		collectionView.delegate = self;
 		collectionView.dataSource = self;
-		collectionView.scrollEnabled = self.areTabsScrollable;
+		collectionView.scrollEnabled = (self.tabBarMode == RTTabBarControllerModeScrollable);
 		collectionView.showsVerticalScrollIndicator = NO;
 		collectionView.showsHorizontalScrollIndicator = NO;
 		collectionView.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.5];
@@ -166,16 +169,16 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 
+	//	debug colors
 	self.layoutWrapperView.backgroundColor = [UIColor blackColor];
 	self.leadingSideContainerView.backgroundColor = [UIColor yellowColor];
 	self.trailingSideContainerView.backgroundColor = [UIColor orangeColor];
-
 	self.mainLayoutView.backgroundColor = [UIColor darkGrayColor];
 	self.mainContainerView.backgroundColor = [UIColor lightGrayColor];
 
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
 
-	[self displaySelectedController];
+	[self processViewControllers];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -183,7 +186,7 @@
 
 	if (self.selectedIndex != NSNotFound) {
 		NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
-		[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+		[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
 	}
 }
 
@@ -212,7 +215,7 @@
 
 	RTTabBarItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier] forIndexPath:indexPath];
 	cell.selected = (self.selectedIndex == indexPath.item);
-	cell.marker.hidden = !self.areTabsSwitchable;
+	cell.marker.hidden = (self.tabBarMode != RTTabBarControllerModeSwitchable);
 
 	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
 	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];
@@ -223,7 +226,6 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
 
 	self.selectedIndex = indexPath.item;
-	[collectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
 }
 
 
@@ -233,8 +235,6 @@
 - (void)displaySelectedController {
 	if (!self.isViewLoaded) return;
 	if (!self.selectedViewController) return;
-
-	[self.mainContainerView.subviews.firstObject removeFromSuperview];
 
 	UIViewController *vc = self.selectedViewController;
 
@@ -248,62 +248,19 @@
 	[self.mainContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]|" options:0 metrics:nil views:vd]];
 }
 
+- (void)removeController:(UIViewController *)vc {
 
+	if (!vc) return;
 
-
-
-
-#pragma mark - Public API
-
-- (void)setTabsScrollable:(BOOL)tabsScrollable {
-
-	if (_tabsScrollable == tabsScrollable) return;
-	_tabsScrollable = tabsScrollable;
-
-	self.tabItemsCollectionView.scrollEnabled = tabsScrollable;
+	[vc willMoveToParentViewController:nil];
+	[vc.view removeFromSuperview];	//	this clears out embedded child view, but box stays inside boxesScrollView
+	[vc removeFromParentViewController];
 }
 
-- (void)setSelectedIndex:(NSInteger)selectedIndex {
-
-	if (_selectedIndex == selectedIndex) return;
-	_selectedIndex = selectedIndex;
-
-	_selectedViewController = self.viewControllers[selectedIndex];
-
-	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
-	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
-
-	[self displaySelectedController];
-}
-
-- (void)setSelectedViewController:(__kindof UIViewController *)selectedViewController {
-
-	if (_selectedViewController == selectedViewController) return;
-	_selectedViewController = selectedViewController;
-
-	_selectedIndex = [self.viewControllers indexOfObject:selectedViewController];
-
-	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
-	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:(self.areTabsScrollable) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
-
-	[self displaySelectedController];
-}
-
-- (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
-
-	if (viewControllers.count == 0) {
-		//	remove visible controlers
-		//	remove tabs
-		return;
-	}
-
-	_viewControllers = viewControllers;
-
-	if (self.selectedIndex == NSNotFound) self.selectedIndex = 0;
-	self.selectedViewController = viewControllers[self.selectedIndex];
+- (void)processViewControllers {
 
 	NSMutableArray <UITabBarItem*> *marr = [NSMutableArray array];
-	[viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull vc, NSUInteger idx, BOOL * _Nonnull stop) {
+	[self.viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull vc, NSUInteger idx, BOOL * _Nonnull stop) {
 		UITabBarItem *tbi = vc.tabBarItem;
 		[marr addObject:tbi];
 	}];
@@ -311,6 +268,74 @@
 	self.tabsDataSource = marr;
 	[self.tabItemsCollectionView reloadData];
 	[self displaySelectedController];
+}
+
+
+#pragma mark - Public API
+
+- (void)setSelectedIndex:(NSInteger)selectedIndex {
+
+	if (_selectedIndex == selectedIndex) return;
+	[self removeController:self.selectedViewController];
+	_selectedIndex = selectedIndex;
+	_selectedViewController = self.viewControllers[selectedIndex];
+
+	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
+	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+
+	[self displaySelectedController];
+}
+
+- (void)setSelectedViewController:(__kindof UIViewController *)selectedViewController {
+
+	if (_selectedViewController == selectedViewController) return;
+	[self removeController:self.selectedViewController];
+	_selectedViewController = selectedViewController;
+	_selectedIndex = [self.viewControllers indexOfObject:selectedViewController];
+
+	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
+	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+
+	[self displaySelectedController];
+}
+
+- (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
+
+	if ([_viewControllers isEqualToArray:viewControllers]) return;
+
+	//	CLEAN UP
+
+	//	remove all displayed controllers
+	[self removeController:self.selectedViewController];
+	self.selectedViewController = nil;
+	[self removeController:self.leadingSidePanelViewController];
+	self.leadingSidePanelViewController = nil;
+	[self removeController:self.trailingSidePanelViewController];
+	self.trailingSidePanelViewController = nil;
+
+	if (viewControllers.count == 0) {
+		//	remove visible controlers
+		_viewControllers = nil;
+		[self.visibleViewControllers removeAllObjects];
+		//	remove tabs
+		self.tabsDataSource = nil;
+		[self.tabItemsCollectionView reloadData];
+		//	clean up
+		_selectedIndex = NSNotFound;
+		_selectedViewController = nil;
+		self.leadingSidePanelViewController = nil;
+		self.trailingSidePanelViewController = nil;
+		return;
+	}
+
+	//	SETUP NEW Controllers
+
+	_viewControllers = viewControllers;
+	if (self.selectedIndex == NSNotFound) _selectedIndex = 0;
+	_selectedViewController = viewControllers[self.selectedIndex];
+	if (!self.isViewLoaded) return;
+
+	[self processViewControllers];
 }
 
 - (void)setLeadingSidePanelEnabled:(BOOL)leadingSidePanelEnabled {

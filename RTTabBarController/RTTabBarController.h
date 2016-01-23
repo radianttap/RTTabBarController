@@ -10,19 +10,25 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, RTTabBarControllerMode) {
+	RTTabBarControllerModeNormal,
+	RTTabBarControllerModeSwitchable,	//	this is default
+	RTTabBarControllerModeScrollable
+};
+
 @interface RTTabBarController : UIViewController
 
 @property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *viewControllers;
 @property (nonatomic) NSInteger maximumVisibleTabs;
 
-@property (nonatomic, getter=areTabsScrollable) BOOL tabsScrollable;
+@property (nonatomic) RTTabBarControllerMode tabBarMode;
 @property (nonatomic, getter=isLeadingSidePanelEnabled) BOOL leadingSidePanelEnabled;
 @property (nonatomic, getter=isTrailingSidePanelEnabled) BOOL trailingSidePanelEnabled;
 
-@property (nonatomic, getter=areTabsSwitchable) BOOL tabsSwitchable;
-
 @property (nonatomic) NSInteger selectedIndex;
 @property (nullable, nonatomic, assign) __kindof UIViewController *selectedViewController;
+@property (nullable, nonatomic, assign) __kindof UIViewController *leadingSidePanelViewController;
+@property (nullable, nonatomic, assign) __kindof UIViewController *trailingSidePanelViewController;
 
 @end
 
