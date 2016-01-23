@@ -22,7 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol RTTabPickerControllerDelegate <NSObject>
 - (NSArray<__kindof UIViewController *> *)itemsForTabPickerController:(RTTabPickerController *)controller;
-- (UIView *)alignmentCellForTabPickerController:(RTTabPickerController *)controller;
 
 - (void)tabPickerController:(RTTabPickerController *)controller didSelectItemAtIndex:(NSInteger)index;
 @end

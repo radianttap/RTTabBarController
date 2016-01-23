@@ -86,9 +86,6 @@
 
 @interface RTTabPickerController () < UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout >
 
-@property (nonatomic, strong) NSLayoutConstraint *leftEdgeConstraint;
-@property (nonatomic, strong) NSLayoutConstraint *widthConstraint;
-
 @property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *dataSource;
 @property (nonatomic, copy) NSArray<NSIndexPath *> *indexPaths;
 
@@ -148,6 +145,7 @@
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 
+	//	animate items up
 	self.dataSource = [self.delegate itemsForTabPickerController:self];
 	NSMutableArray *marr = [NSMutableArray array];
 	[self.dataSource enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -200,6 +198,7 @@
 		self.view.alpha = 0;
 	}];
 
+	//	animate items down
 	self.dataSource = nil;
 	[self.collectionView performBatchUpdates:^{
 		[self.collectionView deleteItemsAtIndexPaths:self.indexPaths];

@@ -292,12 +292,6 @@
 	return arr;
 }
 
-- (UIView *)alignmentCellForTabPickerController:(RTTabPickerController *)controller {
-
-	RTTabBarItem *cell = (RTTabBarItem *)[self.tabItemsCollectionView cellForItemAtIndexPath:self.pickerIndexPath];
-	return cell;
-}
-
 - (void)tabPickerController:(RTTabPickerController *)controller didSelectItemAtIndex:(NSInteger)index {
 
 	NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
