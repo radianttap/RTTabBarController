@@ -245,6 +245,10 @@
 - (void)tabPickerInitiated:(UILongPressGestureRecognizer *)gr {
 
 	if (gr.state == UIGestureRecognizerStateBegan) {
+		if (self.tabPicker) {
+			[self cleanupTabPicker];
+		}
+		
 		CGPoint p = [gr locationInView:gr.view];
 		NSIndexPath *indexPath = [self.tabItemsCollectionView indexPathForItemAtPoint:p];
 		if (!indexPath) return;
@@ -253,21 +257,32 @@
 		if (isLeadingSidePanelItem || isTrailingSidePanelItem) return;
 
 		self.pickerIndexPath = indexPath;
-		UICollectionViewLayoutAttributes *attr = [self.tabItemsCollectionView layoutAttributesForItemAtIndexPath:indexPath];
-		CGPoint realPoint = attr.frame.origin;
 
 		RTTabPickerController *picker = [RTTabPickerController new];
 		picker.delegate = self;
-		picker.leftEdgeOffset = realPoint.x;
-		//	width of the picker's CV
-		CGFloat w = self.tabItemsCollectionView.bounds.size.width;
-		picker.cvWidth = w / self.maximumVisibleTabs;
 		//	needed for height
 		NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
-		picker.numberOfItems = arr.count;
+		CGFloat h = arr.count * (54.0 + 8.0);
 		//	show it
-		[self loadController:picker intoView:self.mainContainerView];
+		[self addChildViewController:picker];
+		[self.mainLayoutView addSubview:picker.view];
+		picker.view.translatesAutoresizingMaskIntoConstraints = NO;
+		[picker didMoveToParentViewController:self];
 		self.tabPicker = picker;
+
+		RTTabBarItem *cell = (RTTabBarItem *)[self.tabItemsCollectionView cellForItemAtIndexPath:self.pickerIndexPath];
+		NSDictionary *vd = @{@"cv": self.tabPicker.view, @"av": cell, @"tabs": self.tabItemsCollectionView};
+		[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[cv(h@750)][tabs]|" options:0 metrics:@{@"h":@(h)} views:vd]];
+		//	width
+		[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[cv(av)]" options:0 metrics:nil views:vd]];
+		//	left edge position
+		[self.mainLayoutView addConstraint:[NSLayoutConstraint constraintWithItem:self.tabPicker.collectionView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:cell attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0]];
+		//	layout
+		[self.mainLayoutView layoutIfNeeded];
+
+		[UIView animateWithDuration:.3 animations:^{
+			self.mainContainerView.alpha = .4;
+		}];
 	}
 }
 
@@ -275,6 +290,12 @@
 
 	NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
 	return arr;
+}
+
+- (UIView *)alignmentCellForTabPickerController:(RTTabPickerController *)controller {
+
+	RTTabBarItem *cell = (RTTabBarItem *)[self.tabItemsCollectionView cellForItemAtIndexPath:self.pickerIndexPath];
+	return cell;
 }
 
 - (void)tabPickerController:(RTTabPickerController *)controller didSelectItemAtIndex:(NSInteger)index {
@@ -293,6 +314,9 @@
 
 - (void)cleanupTabPicker {
 
+	[UIView animateWithDuration:.3 animations:^{
+		self.mainContainerView.alpha = 1;
+	}];
 	[self removeController:self.tabPicker];
 	self.tabPicker = nil;
 	self.pickerIndexPath = nil;
@@ -303,9 +327,9 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 
-	self.layoutWrapperView.backgroundColor = [UIColor blackColor];
-	self.mainLayoutView.backgroundColor = [UIColor darkGrayColor];
-	self.mainContainerView.backgroundColor = [UIColor lightGrayColor];
+	self.layoutWrapperView.backgroundColor = [UIColor darkGrayColor];
+	self.mainLayoutView.backgroundColor = [UIColor blackColor];
+	self.mainContainerView.backgroundColor = [UIColor darkGrayColor];
 
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
 	[self setupCoverView];
@@ -321,6 +345,13 @@
 		NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
 		[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:animated scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
 	}
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+
+	//	relayout tabs
+	[self.tabItemsCollectionView.collectionViewLayout invalidateLayout];
+	[super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
 #pragma mark CollectionView

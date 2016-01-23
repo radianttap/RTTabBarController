@@ -37,6 +37,16 @@
 	return self;
 }
 
+- (UICollectionViewLayoutInvalidationContext *)invalidationContextForBoundsChange:(CGRect)newBounds {
+
+	UICollectionViewFlowLayoutInvalidationContext *context = (UICollectionViewFlowLayoutInvalidationContext *)[super invalidationContextForBoundsChange:newBounds];
+	context.invalidateFlowLayoutDelegateMetrics = (
+												   CGRectGetWidth(newBounds) != CGRectGetWidth(self.collectionView.bounds) ||
+												   CGRectGetHeight(newBounds) != CGRectGetHeight(self.collectionView.bounds)
+												   );
+	return context;
+}
+
 - (NSArray<UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect {
 
 	NSArray<UICollectionViewLayoutAttributes *> *attrs = [super layoutAttributesForElementsInRect:rect];
@@ -92,33 +102,14 @@
 	if (!self) return nil;
 
 	_dataSource = nil;
-	_leftEdgeOffset = 0;
 
 	return self;
-}
-
-- (void)setLeftEdgeOffset:(CGFloat)leftEdgeOffset {
-
-	_leftEdgeOffset = leftEdgeOffset;
-	if (!self.isViewLoaded) return;
-
-	self.leftEdgeConstraint.constant = leftEdgeOffset;
-	[self.view layoutIfNeeded];
-}
-
-- (void)setCvWidth:(CGFloat)cvWidth {
-
-	_cvWidth = cvWidth;
-	if (!self.isViewLoaded) return;
-
-	self.widthConstraint.constant = cvWidth;
-	[self.view layoutIfNeeded];
 }
 
 - (void)loadView {
 	[super loadView];
 
-	self.view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:.8];
+	self.view.backgroundColor = [UIColor clearColor];
 
 	{
 		RTTabPickerLayout *layout = [RTTabPickerLayout new];
@@ -134,20 +125,8 @@
 	}
 
 	NSDictionary *vd = @{@"cv": self.collectionView};
-	//	width
-	CGFloat w = self.cvWidth;
-	self.widthConstraint = [NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:w];
-	[self.collectionView addConstraint:self.widthConstraint];
-	//	height
-	CGFloat h = self.numberOfItems * 54.0 + (self.numberOfItems - 1) * 8.0;
-	[self.collectionView addConstraint:[NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:h]];
-	//	vertical constraints
-	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[cv]|" options:0 metrics:nil views:vd]];
-	//	left edge position
-	CGFloat x = self.leftEdgeOffset;
-	if (x < 0) x = 0;
-	self.leftEdgeConstraint = [NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeading multiplier:1.0 constant:x];
-	[self.view addConstraint:self.leftEdgeConstraint];
+	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[cv]|" options:0 metrics:nil views:vd]];
+	[self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv]|" options:0 metrics:nil views:vd]];
 }
 
 - (void)viewDidLoad {
@@ -181,16 +160,19 @@
 	} completion:nil];
 }
 
+
+
 #pragma mark - Collection View
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
 
+	CGFloat w = collectionView.bounds.size.width;
 	CGFloat h = collectionViewLayout.itemSize.height;
-	return CGSizeMake(self.cvWidth, h);
+	return CGSizeMake(w, h);
 }
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
+	return 1;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -202,9 +184,11 @@
 	RTTabBarItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier] forIndexPath:indexPath];
 	UIViewController *vc = self.dataSource[indexPath.item];
 	UITabBarItem *tbi = vc.tabBarItem;
+
 	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];
 	cell.captionLabel.textColor = [UIColor whiteColor];
 	cell.iconView.tintColor = cell.captionLabel.textColor;
+
 	return cell;
 }
 
