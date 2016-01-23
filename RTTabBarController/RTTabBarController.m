@@ -21,12 +21,16 @@
 @property (nonatomic, strong) UICollectionView *tabItemsCollectionView;
 
 @property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthMatchConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *trailingSideWidthConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *trailingSideWidthMatchConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *tabsHeightConstraint;
 
 @property (nullable, nonatomic, copy) NSArray<__kindof UITabBarItem *> *tabsDataSource;
 
 @property (nullable, nonatomic, copy) NSMutableArray<__kindof UIViewController *> *visibleViewControllers;
+
+@property (nonatomic) CGFloat leadingSidePanelBufferWidth;
 
 @end
 
@@ -47,6 +51,8 @@
 	_tabBarMode = RTTabBarControllerModeSwitchable;
 	_leadingSidePanelEnabled = NO;
 	_trailingSidePanelEnabled = NO;
+
+	_leadingSidePanelBufferWidth = 44.0;
 
 	_maximumVisibleTabs = 5;
 	_visibleViewControllers = [NSMutableArray array];
@@ -112,6 +118,12 @@
 	//	side containers are by default 0-wide
 	self.leadingSideWidthConstraint = [NSLayoutConstraint constraintWithItem:self.leadingSideContainerView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:0];
 	[self.leadingSideContainerView addConstraint:self.leadingSideWidthConstraint];
+	self.leadingSideWidthConstraint.active = YES;
+	//	when enabled they should match the width of the screen - 44.0, as option to tap and go back
+	self.leadingSideWidthMatchConstraint = [NSLayoutConstraint constraintWithItem:self.leadingSideContainerView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:-self.leadingSidePanelBufferWidth];
+	[self.view addConstraint:self.leadingSideWidthMatchConstraint];
+	self.leadingSideWidthMatchConstraint.active = NO;
+
 	self.trailingSideWidthConstraint = [NSLayoutConstraint constraintWithItem:self.trailingSideContainerView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:0];
 	[self.trailingSideContainerView addConstraint:self.trailingSideWidthConstraint];
 
@@ -203,6 +215,8 @@
 	return CGSizeMake(cellw, h);
 }
 
+#pragma mark Data Source
+
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
 	return 1;
 }
@@ -215,7 +229,9 @@
 
 	RTTabBarItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier] forIndexPath:indexPath];
 	cell.selected = (self.selectedIndex == indexPath.item);
-	cell.marker.hidden = (self.tabBarMode != RTTabBarControllerModeSwitchable);
+	BOOL isLeadingSidePanelItem = (indexPath.item == 0 && self.isLeadingSidePanelEnabled);
+	BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
+	cell.marker.hidden = (self.tabBarMode != RTTabBarControllerModeSwitchable || isLeadingSidePanelItem || isTrailingSidePanelItem);
 
 	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
 	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];
@@ -223,7 +239,19 @@
 	return cell;
 }
 
+#pragma mark Delegate
+
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+
+	BOOL isLeadingSidePanelItem = (indexPath.item == 0 && self.isLeadingSidePanelEnabled);
+	BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
+	if (isLeadingSidePanelItem) {
+		[self revealLeadingSidePanel];
+		return;
+	} else if (isTrailingSidePanelItem) {
+
+		return;
+	}
 
 	self.selectedIndex = indexPath.item;
 }
@@ -232,24 +260,19 @@
 
 #pragma mark - Internal API
 
-- (void)displaySelectedController {
-	if (!self.isViewLoaded) return;
-	if (!self.selectedViewController) return;
-
-	UIViewController *vc = self.selectedViewController;
+- (void)loadController:(UIViewController *)vc intoView:(UIView *)containerView {
+	if (!vc || !containerView) return;
 
 	[self addChildViewController:vc];
-	[self.mainContainerView addSubview:vc.view];
+	[containerView addSubview:vc.view];
 	vc.view.translatesAutoresizingMaskIntoConstraints = NO;
 	[vc didMoveToParentViewController:self];
-
 	NSDictionary *vd = @{@"iv": vc.view};
-	[self.mainContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[iv]|" options:0 metrics:nil views:vd]];
-	[self.mainContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]|" options:0 metrics:nil views:vd]];
+	[containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[iv]|" options:0 metrics:nil views:vd]];
+	[containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]|" options:0 metrics:nil views:vd]];
 }
 
 - (void)removeController:(UIViewController *)vc {
-
 	if (!vc) return;
 
 	[vc willMoveToParentViewController:nil];
@@ -269,6 +292,51 @@
 	[self.tabItemsCollectionView reloadData];
 	[self displaySelectedController];
 }
+
+- (void)displaySelectedController {
+	if (!self.isViewLoaded) return;
+	if (!self.selectedViewController) return;
+
+	UIViewController *vc = self.selectedViewController;
+	[self loadController:vc intoView:self.mainContainerView];
+}
+
+- (void)revealLeadingSidePanel {
+
+	UIViewController *vc = self.visibleViewControllers.firstObject;
+	[self loadController:vc intoView:self.leadingSideContainerView];
+
+	self.leadingSideWidthConstraint.active = NO;
+	self.leadingSideWidthMatchConstraint.active = YES;
+	[UIView animateWithDuration:.4
+						  delay:0
+		 usingSpringWithDamping:.96
+		  initialSpringVelocity:12
+						options:0
+					 animations:^{
+						 [self.view layoutIfNeeded];
+					 } completion:nil];
+}
+
+- (void)hideLeadingSidePanel {
+
+	UIViewController *vc = self.visibleViewControllers.firstObject;
+	[self removeController:vc];
+
+	self.leadingSideWidthMatchConstraint.active = NO;
+	self.leadingSideWidthConstraint.active = YES;
+	[UIView animateWithDuration:.4
+						  delay:0
+		 usingSpringWithDamping:.96
+		  initialSpringVelocity:12
+						options:0
+					 animations:^{
+						 [self.view layoutIfNeeded];
+					 } completion:nil];
+}
+
+
+
 
 
 #pragma mark - Public API
@@ -340,10 +408,22 @@
 
 - (void)setLeadingSidePanelEnabled:(BOOL)leadingSidePanelEnabled {
 
+	if (self.tabBarMode == RTTabBarControllerModeScrollable) {
+		_leadingSidePanelEnabled = NO;
+		return;
+	}
+	if (_leadingSidePanelEnabled == leadingSidePanelEnabled) return;
+	_leadingSidePanelEnabled = leadingSidePanelEnabled;
 }
 
 - (void)setTrailingSidePanelEnabled:(BOOL)trailingSidePanelEnabled {
-	
+
+	if (self.tabBarMode == RTTabBarControllerModeScrollable) {
+		_trailingSidePanelEnabled = NO;
+		return;
+	}
+	if (_trailingSidePanelEnabled == trailingSidePanelEnabled) return;
+	_trailingSidePanelEnabled = trailingSidePanelEnabled;
 }
 
 @end

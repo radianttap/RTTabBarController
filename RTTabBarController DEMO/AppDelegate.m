@@ -80,6 +80,7 @@
 
 	RTTabBarController *tc = [RTTabBarController new];
 	tc.viewControllers = marr;
+	tc.leadingSidePanelEnabled = YES;
 	self.window.rootViewController = tc;
 
 	return YES;
