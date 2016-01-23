@@ -288,6 +288,10 @@
 	if (self.selectedIndex == self.pickerIndexPath.item) {
 		self.selectedViewController = self.visibleViewControllers[self.selectedIndex];
 	}
+	[self cleanupTabPicker];
+}
+
+- (void)cleanupTabPicker {
 
 	[self removeController:self.tabPicker];
 	self.tabPicker = nil;
@@ -359,6 +363,10 @@
 #pragma mark Delegate
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+
+	if (self.tabPicker) {
+		[self cleanupTabPicker];
+	}
 
 	BOOL isLeadingSidePanelItem = (indexPath.item == 0 && self.isLeadingSidePanelEnabled);
 	BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
