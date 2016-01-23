@@ -29,6 +29,8 @@ typedef NS_ENUM(NSInteger, RTTabBarControllerMode) {
 @property (nullable, nonatomic, assign) __kindof UIViewController *selectedViewController;
 @property (nullable, nonatomic, assign) __kindof UIViewController *leadingSidePanelViewController;
 @property (nullable, nonatomic, assign) __kindof UIViewController *trailingSidePanelViewController;
+@property (nonatomic) CGFloat leadingSidePanelBufferWidth;
+@property (nonatomic) CGFloat trailingSidePanelBufferWidth;
 
 @end
 

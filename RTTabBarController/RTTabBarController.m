@@ -28,8 +28,6 @@
 @property (nonatomic, strong) UITapGestureRecognizer *coverTapGR;
 @property (nonatomic, getter=isLeadingSidePanelShown) BOOL leadingSidePanelShown;
 @property (nonatomic, getter=isTrailingSidePanelShown) BOOL trailingSidePanelShown;
-@property (nonatomic) CGFloat leadingSidePanelBufferWidth;
-@property (nonatomic) CGFloat trailingSidePanelBufferWidth;
 
 @property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *leadingSideWidthMatchConstraint;
