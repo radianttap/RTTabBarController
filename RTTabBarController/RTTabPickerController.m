@@ -151,9 +151,19 @@
 }
 
 - (void)viewDidLoad {
-    [super viewDidLoad];
-    
+	[super viewDidLoad];
+
 	[self.collectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
+
+	self.view.alpha = 0;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	[super viewWillAppear:animated];
+
+	[UIView animateWithDuration:.3 animations:^{
+		self.view.alpha = 1.0;
+	}];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -201,6 +211,10 @@
 #pragma mark Delegate
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+
+	[UIView animateWithDuration:.3 animations:^{
+		self.view.alpha = 0;
+	}];
 
 	self.dataSource = nil;
 	[self.collectionView performBatchUpdates:^{
