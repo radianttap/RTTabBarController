@@ -10,8 +10,8 @@
 
 @interface RTTabBarItem ()
 
-@property (nonatomic, weak) UIImage *image;
-@property (nonatomic, weak) UIImage *selectedImage;
+@property (nonatomic, strong) UIImage *image;
+@property (nonatomic, strong) UIImage *selectedImage;
 
 @end
 
@@ -50,14 +50,16 @@
 
 	self.captionLabel.text = caption;
 	[self populateIcon];
+	self.captionLabel.textColor = (self.selected) ? self.tintColor : [UIColor grayColor];
+	self.iconView.tintColor = self.captionLabel.textColor;
 }
 
 - (void)setSelected:(BOOL)selected {
 	[super setSelected:selected];
 
+	[self populateIcon];
 	self.captionLabel.textColor = (selected) ? self.tintColor : [UIColor grayColor];
 	self.iconView.tintColor = self.captionLabel.textColor;
-	[self populateIcon];
 }
 
 - (void)populateIcon {

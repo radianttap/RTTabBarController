@@ -42,6 +42,18 @@
 
 @implementation RTTabBarController
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+	return UIStatusBarStyleLightContent;
+}
+
+- (BOOL)prefersStatusBarHidden {
+	return self.isLeadingSidePanelShown || self.isTrailingSidePanelShown;
+}
+
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
+	return UIStatusBarAnimationSlide;
+}
+
 - (instancetype)init {
 
 	self = [super init];
@@ -262,7 +274,7 @@
 		NSIndexPath *indexPath = [self.tabItemsCollectionView indexPathForItemAtPoint:p];
 		if (!indexPath) return;
 		BOOL isLeadingSidePanelItem = (indexPath.item == 0 && self.isLeadingSidePanelEnabled);
-		BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
+		BOOL isTrailingSidePanelItem = (indexPath.item == self.tabsDataSource.count - 1 && self.isTrailingSidePanelEnabled);
 		if (isLeadingSidePanelItem || isTrailingSidePanelItem) return;
 
 		self.pickerIndexPath = indexPath;
@@ -341,8 +353,8 @@
 	[self setupTabPicker];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-	[super viewWillAppear:animated];
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
 
 	if (self.selectedIndex != NSNotFound) {
 		NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
@@ -357,15 +369,15 @@
 	[super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
-#pragma mark CollectionView
+#pragma mark - CollectionView
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
 
 	CGFloat w = collectionView.bounds.size.width;
 	CGFloat h = collectionViewLayout.itemSize.height;
 
-	w -= collectionViewLayout.minimumLineSpacing * (self.maximumVisibleTabs-1);
-	CGFloat cellw = w / self.maximumVisibleTabs;
+	w -= collectionViewLayout.minimumLineSpacing * (self.tabsDataSource.count - 1);
+	CGFloat cellw = w / self.tabsDataSource.count;
 
 	return CGSizeMake(cellw, h);
 }
@@ -385,7 +397,7 @@
 	RTTabBarItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier] forIndexPath:indexPath];
 	cell.selected = (self.selectedIndex == indexPath.item);
 	BOOL isLeadingSidePanelItem = (indexPath.item == 0 && self.isLeadingSidePanelEnabled);
-	BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
+	BOOL isTrailingSidePanelItem = (indexPath.item == self.tabsDataSource.count - 1 && self.isTrailingSidePanelEnabled);
 	cell.marker.hidden = (self.tabBarMode != RTTabBarControllerModeSwitchable || isLeadingSidePanelItem || isTrailingSidePanelItem);
 
 	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
@@ -403,7 +415,7 @@
 	}
 
 	BOOL isLeadingSidePanelItem = (indexPath.item == 0 && self.isLeadingSidePanelEnabled);
-	BOOL isTrailingSidePanelItem = (indexPath.item == self.maximumVisibleTabs-1 && self.isTrailingSidePanelEnabled);
+	BOOL isTrailingSidePanelItem = (indexPath.item == self.tabsDataSource.count - 1 && self.isTrailingSidePanelEnabled);
 	if (isLeadingSidePanelItem) {
 		[self revealLeadingSidePanel];
 		[collectionView deselectItemAtIndexPath:indexPath animated:NO];
@@ -454,8 +466,14 @@
 		}
 		[varr addObject:vc];
 
-		UITabBarItem *tbi = vc.tabBarItem;
-		[marr addObject:tbi];
+		if ([vc isKindOfClass:[UINavigationController class]]) {
+			UIViewController *realVC = [(UINavigationController *)vc viewControllers].firstObject;
+			UITabBarItem *tbi = realVC.tabBarItem;
+			[marr addObject:tbi];
+		} else {
+			UITabBarItem *tbi = vc.tabBarItem;
+			[marr addObject:tbi];
+		}
 	}];
 
 	self.visibleViewControllers = varr;
@@ -474,6 +492,8 @@
 	[self displaySelectedController];
 }
 
+#pragma mark
+
 - (void)displaySelectedController {
 	if (!self.isViewLoaded) return;
 	if (!self.selectedViewController) return;
@@ -482,10 +502,15 @@
 	[self loadController:vc intoView:self.mainContainerView];
 }
 
+#pragma mark
+
 - (void)revealLeadingSidePanel {
 
 	UIViewController *vc = self.visibleViewControllers.firstObject;
 	[self loadController:vc intoView:self.leadingSideContainerView];
+
+	self.leadingSidePanelShown = YES;
+	[self setNeedsStatusBarAppearanceUpdate];
 
 	self.leadingSideWidthConstraint.active = NO;
 	self.leadingSideWidthMatchConstraint.active = YES;
@@ -499,7 +524,6 @@
 						 self.mainCoverView.hidden = NO;
 					 } completion:^(BOOL finished) {
 						 if (!finished) return;
-						 self.leadingSidePanelShown = YES;
 					 }];
 }
 
@@ -507,6 +531,9 @@
 
 	UIViewController *vc = self.visibleViewControllers.firstObject;
 	[self removeController:vc];
+
+	self.leadingSidePanelShown = NO;
+	[self setNeedsStatusBarAppearanceUpdate];
 
 	self.leadingSideWidthMatchConstraint.active = NO;
 	self.leadingSideWidthConstraint.active = YES;
@@ -520,14 +547,18 @@
 						 self.mainCoverView.hidden = YES;
 					 } completion:^(BOOL finished) {
 						 if (!finished) return;
-						 self.leadingSidePanelShown = NO;
 					 }];
 }
+
+#pragma mark
 
 - (void)revealTrailingSidePanel {
 
 	UIViewController *vc = self.visibleViewControllers.lastObject;
 	[self loadController:vc intoView:self.trailingSideContainerView];
+
+	self.trailingSidePanelShown = YES;
+	[self setNeedsStatusBarAppearanceUpdate];
 
 	self.trailingSideWidthConstraint.active = NO;
 	self.trailingSideWidthMatchConstraint.active = YES;
@@ -542,7 +573,6 @@
 						 self.mainCoverView.hidden = NO;
 					 } completion:^(BOOL finished) {
 						 if (!finished) return;
-						 self.trailingSidePanelShown = YES;
 					 }];
 }
 
@@ -550,6 +580,9 @@
 
 	UIViewController *vc = self.visibleViewControllers.lastObject;
 	[self removeController:vc];
+
+	self.trailingSidePanelShown = NO;
+	[self setNeedsStatusBarAppearanceUpdate];
 
 	self.trailingSideWidthMatchConstraint.active = NO;
 	self.trailingSideWidthConstraint.active = YES;
@@ -564,7 +597,6 @@
 						 self.mainCoverView.hidden = YES;
 					 } completion:^(BOOL finished) {
 						 if (!finished) return;
-						 self.trailingSidePanelShown = NO;
 					 }];
 }
 
