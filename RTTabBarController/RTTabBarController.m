@@ -623,7 +623,7 @@
 
 - (void)setSelectedViewController:(__kindof UIViewController *)selectedViewController {
 
-	if (_selectedViewController == selectedViewController) return;
+	if ([_selectedViewController isEqual:selectedViewController]) return;
 	[self removeController:self.selectedViewController];
 	_selectedViewController = selectedViewController;
 	_selectedIndex = [self.visibleViewControllers indexOfObject:selectedViewController];
@@ -632,6 +632,24 @@
 	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
 
 	[self displaySelectedController];
+}
+
+- (void)injectViewController:(UIViewController *)vc atIndex:(NSInteger)index {
+
+	NSMutableArray *vcarr = [self.viewControllers mutableCopy];
+	[vcarr addObject:vc];
+	_viewControllers = vcarr;
+
+	if (index < self.maximumVisibleTabs) {
+		NSIndexPath *pickerIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
+		//	update data sources
+		self.visibleViewControllers[pickerIndexPath.item] = vc;
+		self.tabsDataSource[pickerIndexPath.item] = vc.tabBarItem;
+		//	reload tabs
+		[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[pickerIndexPath]];
+		//	make it selected and display the content
+		self.selectedViewController = self.visibleViewControllers[index];
+	}
 }
 
 - (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
@@ -758,9 +776,13 @@
 	BOOL shouldPresent = YES;
 
 	if (tabIndex == 0 && self.isLeadingSidePanelEnabled) {
+		shouldPresent = NO;
 		tabIndex = 1;	//	replace 2nd tab (1st after side panel tab)
+		[self hideLeadingSidePanel];
 	} else if (tabIndex == self.visibleViewControllers.count-1 && self.isTrailingSidePanelShown) {
+		shouldPresent = NO;
 		tabIndex = self.visibleViewControllers.count-2;	//	replace second to last tab (1st to the left of right panel tab)
+		[self hideTrailingSidePanel];
 	}
 
 	[self showViewController:vc presented:shouldPresent orAtTabIndex:tabIndex];
@@ -788,6 +810,8 @@
 		[self presentViewController:nc animated:YES completion:nil];
 		return;
 	}
+
+	//	should it also be added to viewControllers?
 
 	NSIndexPath *pickerIndexPath = [NSIndexPath indexPathForItem:tabIndex inSection:0];
 	//	update data sources

@@ -34,6 +34,10 @@ typedef NS_ENUM(NSInteger, RTTabBarControllerMode) {
 @property (nonatomic) CGFloat leadingSidePanelBufferWidth;
 @property (nonatomic) CGFloat trailingSidePanelBufferWidth;
 
+- (void)injectViewController:(UIViewController *)vc atIndex:(NSInteger)index;
+- (void)hideLeadingSidePanel;
+- (void)hideTrailingSidePanel;
+
 @end
 
 NS_ASSUME_NONNULL_END
