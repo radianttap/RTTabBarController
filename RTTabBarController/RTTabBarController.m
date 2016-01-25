@@ -732,18 +732,6 @@
 
 #pragma mark - Content Containment
 
-- (NSInteger)tabIndexForSenderViewController:(UIViewController *)sender {
-
-	__block NSInteger tabIndex = NSNotFound;
-	[self.visibleViewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-		if ([sender isEqual:obj]) {
-			tabIndex = idx;
-			*stop = YES;
-		}
-	}];
-	return tabIndex;
-}
-
 - (void)showViewController:(UIViewController *)vc sender:(id)sender {
 	//	replaces the sender controller with the sent VC, if sender is not side-panel
 	//	if sender is not found in visible controllers or is in side panels, then present the sent VC
@@ -776,6 +764,20 @@
 	}
 
 	[self showViewController:vc presented:shouldPresent orAtTabIndex:tabIndex];
+}
+
+#pragma mark Internal containment stuff
+
+- (NSInteger)tabIndexForSenderViewController:(UIViewController *)sender {
+
+	__block NSInteger tabIndex = NSNotFound;
+	[self.visibleViewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+		if ([sender isEqual:obj]) {
+			tabIndex = idx;
+			*stop = YES;
+		}
+	}];
+	return tabIndex;
 }
 
 - (void)showViewController:(UIViewController *)vc presented:(BOOL)shouldPresent orAtTabIndex:(NSInteger)tabIndex {
