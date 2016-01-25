@@ -688,4 +688,42 @@
 	_trailingSidePanelEnabled = trailingSidePanelEnabled;
 }
 
+- (void)setLeadingSidePanelBufferWidth:(CGFloat)leadingSidePanelBufferWidth {
+
+	if (_leadingSidePanelBufferWidth == leadingSidePanelBufferWidth) return;
+	_leadingSidePanelBufferWidth = leadingSidePanelBufferWidth;
+
+	self.leadingSideWidthMatchConstraint.constant = leadingSidePanelBufferWidth;
+	if (self.isLeadingSidePanelShown) {
+		[UIView animateWithDuration:.4
+							  delay:0
+			 usingSpringWithDamping:.96
+			  initialSpringVelocity:12
+							options:0
+						 animations:^{
+							 [self.view layoutIfNeeded];
+							 [self.layoutWrapperView scrollRectToVisible:self.leadingSideContainerView.frame animated:NO];
+						 } completion:nil];
+	}
+}
+
+- (void)setTrailingSidePanelBufferWidth:(CGFloat)trailingSidePanelBufferWidth {
+
+	if (_trailingSidePanelBufferWidth == trailingSidePanelBufferWidth) return;
+	_trailingSidePanelBufferWidth = trailingSidePanelBufferWidth;
+
+	self.trailingSideWidthMatchConstraint.constant = trailingSidePanelBufferWidth;
+	if (self.isTrailingSidePanelShown) {
+		[UIView animateWithDuration:.4
+							  delay:0
+			 usingSpringWithDamping:.96
+			  initialSpringVelocity:12
+							options:0
+						 animations:^{
+							 [self.view layoutIfNeeded];
+							 [self.layoutWrapperView scrollRectToVisible:self.trailingSideContainerView.frame animated:NO];
+						 } completion:nil];
+	}
+}
+
 @end
