@@ -729,4 +729,72 @@
 	}
 }
 
+
+#pragma mark - Content Containment
+
+- (NSInteger)tabIndexForSenderViewController:(UIViewController *)sender {
+
+	__block NSInteger tabIndex = NSNotFound;
+	[self.visibleViewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+		if ([sender isEqual:obj]) {
+			tabIndex = idx;
+			*stop = YES;
+		}
+	}];
+	return tabIndex;
+}
+
+- (void)showViewController:(UIViewController *)vc sender:(id)sender {
+	//	replaces the sender controller with the sent VC, if sender is not side-panel
+	//	if sender is not found in visible controllers or is in side panels, then present the sent VC
+
+	NSInteger tabIndex = [self tabIndexForSenderViewController:sender];
+	BOOL shouldPresent = NO;
+
+	if (tabIndex == NSNotFound) {
+		shouldPresent = YES;
+	} else if (tabIndex == 0 && self.isLeadingSidePanelEnabled) {
+		shouldPresent = YES;
+	} else if (tabIndex == self.visibleViewControllers.count-1 && self.isTrailingSidePanelShown) {
+		shouldPresent = YES;
+	}
+
+	[self showViewController:vc presented:shouldPresent orAtTabIndex:tabIndex];
+}
+
+- (void)showDetailViewController:(UIViewController *)vc sender:(id)sender {
+	//	if sender is from one of side panels, then load sent VC into middle part
+	//	otherwise, just present it
+
+	NSInteger tabIndex = [self tabIndexForSenderViewController:sender];
+	BOOL shouldPresent = YES;
+
+	if (tabIndex == 0 && self.isLeadingSidePanelEnabled) {
+		tabIndex = 1;	//	replace 2nd tab (1st after side panel tab)
+	} else if (tabIndex == self.visibleViewControllers.count-1 && self.isTrailingSidePanelShown) {
+		tabIndex = self.visibleViewControllers.count-2;	//	replace second to last tab (1st to the left of right panel tab)
+	}
+
+	[self showViewController:vc presented:shouldPresent orAtTabIndex:tabIndex];
+}
+
+- (void)showViewController:(UIViewController *)vc presented:(BOOL)shouldPresent orAtTabIndex:(NSInteger)tabIndex {
+
+	if (shouldPresent) {
+		UINavigationController *nc = [[UINavigationController alloc] initWithRootViewController:vc];
+		nc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+		[self presentViewController:nc animated:YES completion:nil];
+		return;
+	}
+
+	NSIndexPath *pickerIndexPath = [NSIndexPath indexPathForItem:tabIndex inSection:0];
+	//	update data sources
+	self.visibleViewControllers[pickerIndexPath.item] = vc;
+	self.tabsDataSource[pickerIndexPath.item] = vc.tabBarItem;
+	//	reload tabs
+	[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[pickerIndexPath]];
+	//	make it selected and display the content
+	self.selectedViewController = self.visibleViewControllers[tabIndex];
+}
+
 @end
