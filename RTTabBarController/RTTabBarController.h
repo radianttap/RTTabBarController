@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, RTTabBarControllerMode) {
 
 @property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *viewControllers;
 @property (nonatomic) NSInteger maximumVisibleTabs;
+@property (nullable, nonatomic, strong, readonly) NSMutableArray<__kindof UIViewController *> *visibleViewControllers;
 @property (nonatomic, getter=shouldBlurMainContentWhenSidePanelAppears) BOOL blurMainContentWhenSidePanelAppears;
 
 @property (nonatomic) RTTabBarControllerMode tabBarMode;
