@@ -480,6 +480,9 @@
 	self.tabsDataSource = marr;
 	[self.tabItemsCollectionView reloadData];
 
+	_leadingSidePanelViewController = varr.firstObject;
+	_trailingSidePanelViewController = varr.lastObject;
+
 	if (self.selectedIndex == NSNotFound) {
 		if (self.isLeadingSidePanelEnabled) {
 			_selectedIndex = 1;
@@ -506,7 +509,7 @@
 
 - (void)revealLeadingSidePanel {
 
-	UIViewController *vc = self.visibleViewControllers.firstObject;
+	UIViewController *vc = self.leadingSidePanelViewController;
 	[self loadController:vc intoView:self.leadingSideContainerView];
 
 	self.leadingSidePanelShown = YES;
@@ -529,7 +532,7 @@
 
 - (void)hideLeadingSidePanel {
 
-	UIViewController *vc = self.visibleViewControllers.firstObject;
+	UIViewController *vc = self.leadingSidePanelViewController;
 	[self removeController:vc];
 
 	self.leadingSidePanelShown = NO;
@@ -554,7 +557,7 @@
 
 - (void)revealTrailingSidePanel {
 
-	UIViewController *vc = self.visibleViewControllers.lastObject;
+	UIViewController *vc = self.trailingSidePanelViewController;
 	[self loadController:vc intoView:self.trailingSideContainerView];
 
 	self.trailingSidePanelShown = YES;
@@ -578,7 +581,7 @@
 
 - (void)hideTrailingSidePanel {
 
-	UIViewController *vc = self.visibleViewControllers.lastObject;
+	UIViewController *vc = self.trailingSidePanelViewController;
 	[self removeController:vc];
 
 	self.trailingSidePanelShown = NO;
