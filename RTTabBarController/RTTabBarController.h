@@ -34,9 +34,25 @@ typedef NS_ENUM(NSInteger, RTTabBarControllerMode) {
 @property (nonatomic) CGFloat leadingSidePanelBufferWidth;
 @property (nonatomic) CGFloat trailingSidePanelBufferWidth;
 
-- (void)injectViewController:(UIViewController *)vc atIndex:(NSInteger)index;
 - (void)hideLeadingSidePanel;
 - (void)hideTrailingSidePanel;
+
+/**
+ *	Go through viewControllers array and if there's a VC (even if it's wrapped inside Navigation Controller) with sentClass, display it
+ *	Existing tabs are not changed, unless the found VC is one of the visible tabs - then the tab is selected
+ *
+ *	@param sentClass	Class of the view controllers that should be display
+ */
+- (void)showViewControllerWithClass:(Class)sentClass;
+
+/**
+ *	Append the sent controller into viewControllers and forcefully inject at sent tab index position.
+ *	If the value of index is higher then maximumVisibleTabs, then VC is still added and it's contnet shown, but tabs are left unchanged
+ *
+ *	@param vc		View Controller instance to append/show
+ *	@param index	Index of the tab where the sent VC should be injected
+ */
+- (void)injectViewController:(UIViewController *)vc atIndex:(NSInteger)index;
 
 @end
 

@@ -23,6 +23,8 @@
 @property (nonatomic, strong) UILongPressGestureRecognizer *tabPickerGR;
 @property (nonatomic, strong) RTTabPickerController *tabPicker;
 @property (nullable, nonatomic, strong) NSIndexPath *pickerIndexPath;
+@property (nonatomic, strong) UITapGestureRecognizer *tabPickerCoverTapGR;
+@property (nonatomic, strong) UIView *tabPickerCoverView;
 
 @property (nonatomic, strong) UIView *mainCoverView;
 @property (nonatomic, strong) UITapGestureRecognizer *coverTapGR;
@@ -279,6 +281,22 @@
 
 		self.pickerIndexPath = indexPath;
 
+		UIView *coverView = [UIView new];
+		coverView.backgroundColor = [UIColor blackColor];
+		coverView.alpha = 0;
+		coverView.translatesAutoresizingMaskIntoConstraints = NO;
+		UITapGestureRecognizer *tapGR = [UITapGestureRecognizer new];
+		[tapGR addTarget:self action:@selector(cancelTabPicker:)];
+		self.tabPickerCoverTapGR = tapGR;
+		[coverView addGestureRecognizer:tapGR];
+		self.tabPickerCoverView = coverView;
+		[self.mainContainerView addSubview:coverView];
+		{
+			NSDictionary *vd = @{@"cv": self.tabPickerCoverView};
+			[self.mainContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[cv]|" options:0 metrics:nil views:vd]];
+			[self.mainContainerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv]|" options:0 metrics:nil views:vd]];
+		}
+
 		RTTabPickerController *picker = [RTTabPickerController new];
 		picker.delegate = self;
 		//	needed for height
@@ -302,7 +320,7 @@
 		[self.mainLayoutView layoutIfNeeded];
 
 		[UIView animateWithDuration:.3 animations:^{
-			self.mainContainerView.alpha = .4;
+			self.tabPickerCoverView.alpha = .6;
 		}];
 	}
 }
@@ -329,12 +347,21 @@
 
 - (void)cleanupTabPicker {
 
-	[UIView animateWithDuration:.3 animations:^{
-		self.mainContainerView.alpha = 1;
-	}];
 	[self removeController:self.tabPicker];
 	self.tabPicker = nil;
 	self.pickerIndexPath = nil;
+
+	[UIView animateWithDuration:.3 animations:^{
+		self.tabPickerCoverView.alpha = 0;
+	} completion:^(BOOL finished) {
+		self.tabPickerCoverTapGR = nil;
+		[self.tabPickerCoverView removeFromSuperview];
+	}];
+}
+
+- (void)cancelTabPicker:(UITapGestureRecognizer *)tapGR {
+
+	[self cleanupTabPicker];
 }
 
 #pragma mark - View lifecycle
@@ -489,8 +516,8 @@
 		} else {
 			_selectedIndex = 0;
 		}
-		_selectedViewController = self.visibleViewControllers[self.selectedIndex];
 	}
+	_selectedViewController = self.visibleViewControllers[self.selectedIndex];
 
 	[self displaySelectedController];
 }
@@ -613,6 +640,7 @@
 	if (_selectedIndex == selectedIndex) return;
 	[self removeController:self.selectedViewController];
 	_selectedIndex = selectedIndex;
+	if (!self.isViewLoaded) return;
 	_selectedViewController = self.visibleViewControllers[selectedIndex];
 
 	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
@@ -626,30 +654,15 @@
 	if ([_selectedViewController isEqual:selectedViewController]) return;
 	[self removeController:self.selectedViewController];
 	_selectedViewController = selectedViewController;
+	if (!self.isViewLoaded) return;
 	_selectedIndex = [self.visibleViewControllers indexOfObject:selectedViewController];
 
-	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
-	[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+	if (self.selectedIndex != NSNotFound) {
+		NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.selectedIndex inSection:0];
+		[self.tabItemsCollectionView selectItemAtIndexPath:indexPath animated:YES scrollPosition:(self.tabItemsCollectionView.scrollEnabled) ? UICollectionViewScrollPositionCenteredHorizontally : UICollectionViewScrollPositionNone];
+	}
 
 	[self displaySelectedController];
-}
-
-- (void)injectViewController:(UIViewController *)vc atIndex:(NSInteger)index {
-
-	NSMutableArray *vcarr = [self.viewControllers mutableCopy];
-	[vcarr addObject:vc];
-	_viewControllers = vcarr;
-
-	if (index < self.maximumVisibleTabs) {
-		NSIndexPath *pickerIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
-		//	update data sources
-		self.visibleViewControllers[pickerIndexPath.item] = vc;
-		self.tabsDataSource[pickerIndexPath.item] = vc.tabBarItem;
-		//	reload tabs
-		[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[pickerIndexPath]];
-		//	make it selected and display the content
-		self.selectedViewController = self.visibleViewControllers[index];
-	}
 }
 
 - (void)setViewControllers:(NSArray<__kindof UIViewController *> *)viewControllers {
@@ -788,6 +801,53 @@
 	[self showViewController:vc presented:shouldPresent orAtTabIndex:tabIndex];
 }
 
+- (void)injectViewController:(UIViewController *)vc atIndex:(NSInteger)index {
+
+	NSMutableArray *vcarr = [self.viewControllers mutableCopy];
+	[vcarr addObject:vc];
+	_viewControllers = vcarr;
+
+	if (index < self.maximumVisibleTabs) {
+		NSIndexPath *pickerIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
+		//	update data sources
+		self.visibleViewControllers[pickerIndexPath.item] = vc;
+		self.tabsDataSource[pickerIndexPath.item] = vc.tabBarItem;
+		//	reload tabs
+		[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[pickerIndexPath]];
+		//	make it selected and display the content
+		self.selectedViewController = self.visibleViewControllers[index];
+
+	} else {
+		self.selectedViewController = vc;
+	}
+
+	if (self.isLeadingSidePanelShown) [self hideLeadingSidePanel];
+	else if (self.isTrailingSidePanelShown) [self hideTrailingSidePanel];
+}
+
+- (void)showViewControllerWithClass:(Class)sentClass {
+
+	[self.viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+		//	un-wrap NC, if it's there
+		UIViewController *realVC = obj;
+		if ([obj isKindOfClass:[UINavigationController class]]) {
+			realVC = [(UINavigationController *)obj topViewController];
+		}
+
+		//	if class is found, display that controller
+		if (realVC.class == sentClass) {
+			self.selectedViewController = obj;
+			*stop = YES;
+			return;
+		}
+	}];
+
+	if (self.isLeadingSidePanelShown) [self hideLeadingSidePanel];
+	else if (self.isTrailingSidePanelShown) [self hideTrailingSidePanel];
+}
+
+
+
 #pragma mark Internal containment stuff
 
 - (NSInteger)tabIndexForSenderViewController:(UIViewController *)sender {
@@ -811,16 +871,7 @@
 		return;
 	}
 
-	//	should it also be added to viewControllers?
-
-	NSIndexPath *pickerIndexPath = [NSIndexPath indexPathForItem:tabIndex inSection:0];
-	//	update data sources
-	self.visibleViewControllers[pickerIndexPath.item] = vc;
-	self.tabsDataSource[pickerIndexPath.item] = vc.tabBarItem;
-	//	reload tabs
-	[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[pickerIndexPath]];
-	//	make it selected and display the content
-	self.selectedViewController = self.visibleViewControllers[tabIndex];
+	[self injectViewController:vc atIndex:tabIndex];
 }
 
 @end
