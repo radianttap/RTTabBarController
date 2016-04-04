@@ -34,6 +34,10 @@
 	self.captionLabel.textColor = [UIColor grayColor];
 	self.iconView.tintColor = self.captionLabel.textColor;
 	self.marker.tintColor = [UIColor grayColor];
+	self.badgeContainer.alpha = 0;
+	self.badgeContainer.backgroundColor = [UIColor redColor];
+
+	self.badgeContainer.layer.cornerRadius = self.badgeContainer.frame.size.width / 2.0;
 }
 
 - (void)prepareForReuse {
@@ -69,6 +73,17 @@
 	} else {
 		self.iconView.image = self.image;
 	}
+}
+
+- (void)populateBadgeWith:(NSString *)badgeValue {
+
+	if (badgeValue.length == 0) {
+		self.badgeContainer.alpha = 0;
+		return;
+	}
+
+	self.badgeLabel.text = badgeValue;
+	self.badgeContainer.alpha = 1;
 }
 
 @end

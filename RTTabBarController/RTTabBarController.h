@@ -16,6 +16,8 @@ typedef NS_ENUM(NSInteger, RTTabBarControllerMode) {
 	RTTabBarControllerModeScrollable
 };
 
+@class RTTabBarItem;
+
 @interface RTTabBarController : UIViewController
 
 @property (nullable, nonatomic, copy) NSArray<__kindof UIViewController *> *viewControllers;
@@ -53,6 +55,9 @@ typedef NS_ENUM(NSInteger, RTTabBarControllerMode) {
  *	@param index	Index of the tab where the sent VC should be injected
  */
 - (void)injectViewController:(UIViewController *)vc atIndex:(NSInteger)index;
+
+
+- (nullable RTTabBarItem *)tabItemAtIndex:(NSInteger)idx;
 
 @end
 

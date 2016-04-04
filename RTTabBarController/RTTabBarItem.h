@@ -19,7 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) IBOutlet UIImageView *iconView;
 @property (nonatomic, weak) IBOutlet UIImageView *marker;
 
+@property (nonatomic, weak) IBOutlet UIView *badgeContainer;
+@property (nonatomic, weak) IBOutlet UILabel *badgeLabel;
+
 - (void)populateWithCaption:(nullable NSString *)caption icon:(nullable UIImage *)image selectedIcon:(nullable UIImage *)selectedImage;
+- (void)populateBadgeWith:(NSString *)badgeValue;
 
 @end
 

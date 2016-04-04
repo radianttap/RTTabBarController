@@ -10,7 +10,9 @@
 #import "RTTabBarItem.h"
 #import "RTTabPickerController.h"
 
-@interface RTTabBarController () < UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, RTTabPickerControllerDelegate >
+void * _Nullable RTTabBarControllerTabBarItemObservationContext;
+
+@interface RTTabBarController () < UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, RTTabPickerControllerDelegate, UIGestureRecognizerDelegate >
 
 @property (nonatomic, strong) UIScrollView *layoutWrapperView;
 
@@ -39,6 +41,9 @@
 
 @property (nullable, nonatomic, strong) NSMutableArray<__kindof UITabBarItem *> *tabsDataSource;
 @property (nullable, nonatomic, strong) NSMutableArray<__kindof UIViewController *> *visibleViewControllers;
+
+@property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *leadingEdgeSwiper;
+@property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *trailingEdgeSwiper;
 
 @end
 
@@ -219,8 +224,8 @@
 
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[cv]|" options:0 metrics:nil views:vd]];
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[tabs]|" options:0 metrics:nil views:vd]];
-//	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv][tabs]|" options:0 metrics:nil views:vd]];
-	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv]|" options:0 metrics:nil views:vd]];
+	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv][tabs]|" options:0 metrics:nil views:vd]];
+//	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[cv]|" options:0 metrics:nil views:vd]];
 
 	[self.mainLayoutView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[tabs]|" options:0 metrics:nil views:vd]];
 	self.tabsHeightConstraint = [NSLayoutConstraint constraintWithItem:self.tabItemsCollectionView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:54.0];
@@ -336,7 +341,16 @@
 	NSArray *arr = [self.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.visibleViewControllers]];
 	UIViewController *vc = arr[index];
 	self.visibleViewControllers[self.pickerIndexPath.item] = vc;
-	self.tabsDataSource[self.pickerIndexPath.item] = vc.tabBarItem;
+
+	UITabBarItem *tbi = nil;
+	if ([vc isKindOfClass:[UINavigationController class]]) {
+		UIViewController *realVC = [(UINavigationController *)vc viewControllers].firstObject;
+		tbi = realVC.tabBarItem;
+	} else {
+		tbi = vc.tabBarItem;
+	}
+
+	self.tabsDataSource[self.pickerIndexPath.item] = tbi;
 	[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[self.pickerIndexPath]];
 
 	if (self.selectedIndex == self.pickerIndexPath.item) {
@@ -373,11 +387,14 @@
 	self.mainLayoutView.backgroundColor = [UIColor blackColor];
 	self.mainContainerView.backgroundColor = [UIColor darkGrayColor];
 
+	self.tabItemsCollectionView.backgroundColor = [UIColor colorWithRed:.95 green:.95 blue:.95 alpha:1];
 	[self.tabItemsCollectionView registerNib:[RTTabBarItem nib] forCellWithReuseIdentifier:[RTTabBarItem reuseIdentifier]];
 	[self setupCoverView];
 
 	[self processViewControllers];
 	[self setupTabPicker];
+
+	[self setupSideGestures];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -395,6 +412,84 @@
 	[self.tabItemsCollectionView.collectionViewLayout invalidateLayout];
 	[super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
+
+
+#pragma mark Side gestures
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+
+	return YES;
+}
+
+- (void)setupSideGestures {
+
+	UIView *gesturesView = self.layoutWrapperView;
+
+	//	swipe from left
+	UIScreenEdgePanGestureRecognizer *gr = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(handleScreenEdgeGesture:)];
+	gr.edges = UIRectEdgeLeft;
+	gr.delegate = self;
+	[gesturesView addGestureRecognizer:gr];
+	self.leadingEdgeSwiper = gr;
+
+	//	swipe from right
+	UIScreenEdgePanGestureRecognizer *gr2 = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(handleScreenEdgeGesture:)];
+	gr2.edges = UIRectEdgeRight;
+	gr.delegate = self;
+	[gesturesView addGestureRecognizer:gr2];
+	self.trailingEdgeSwiper = gr2;
+}
+
+- (void)handleScreenEdgeGesture:(UIScreenEdgePanGestureRecognizer *)recognizer {
+
+//	UIView *gesturesView = self.layoutWrapperView;
+//
+//	CGPoint point = [recognizer locationInView:gesturesView];
+//	CGFloat velocity = [(UIPanGestureRecognizer *)recognizer velocityInView:gesturesView].x;
+//
+//	CGFloat progress = ABS([recognizer translationInView:gesturesView].x) / (gesturesView.bounds.size.width * 1.0);
+//	progress = MIN(1.0, MAX(0.0, progress));
+
+	if (recognizer.state == UIGestureRecognizerStateBegan) {
+		// Create a interactive transition and pop the view controller
+		//		UIPercentDrivenInteractiveTransition *interactiveTransition = [[UIPercentDrivenInteractiveTransition alloc] init];
+		//		self.interactiveController = interactiveTransition;
+
+		if ([recognizer isEqual:self.leadingEdgeSwiper]) {
+			if ( self.isTrailingSidePanelShown ) {
+				//	close the right panel
+				[self hideTrailingSidePanel];
+				return;
+			}
+
+			if ( self.isLeadingSidePanelShown ) return;
+			if ( !self.isLeadingSidePanelEnabled ) return;
+			[self revealLeadingSidePanel];
+
+		} else if ([recognizer isEqual:self.trailingEdgeSwiper]) {
+			if ( self.isLeadingSidePanelShown ) {
+				//	close the left panel
+				[self hideLeadingSidePanel];
+				return;
+			}
+
+			if ( self.isTrailingSidePanelShown ) return;
+			if ( !self.isTrailingSidePanelEnabled ) return;
+			[self revealTrailingSidePanel];
+		}
+
+	} else if (recognizer.state == UIGestureRecognizerStateChanged) {
+
+
+	} else if (recognizer.state == UIGestureRecognizerStateCancelled) {
+
+
+	} else if (recognizer.state == UIGestureRecognizerStateEnded) {
+
+	}
+}
+
+
 
 #pragma mark - CollectionView
 
@@ -429,6 +524,7 @@
 
 	UITabBarItem *tbi = self.tabsDataSource[indexPath.item];
 	[cell populateWithCaption:tbi.title icon:tbi.image selectedIcon:tbi.selectedImage];
+	[cell populateBadgeWith:tbi.badgeValue];
 
 	return cell;
 }
@@ -456,6 +552,16 @@
 	self.selectedIndex = indexPath.item;
 }
 
+- (RTTabBarItem *)tabItemAtIndex:(NSInteger)idx {
+
+	if (idx >= self.tabsDataSource.count) return nil;
+
+	NSIndexPath *indexPath = [NSIndexPath indexPathForItem:idx inSection:0];
+	RTTabBarItem *cell = (RTTabBarItem *)[self.tabItemsCollectionView cellForItemAtIndexPath:indexPath];
+	return cell;
+}
+
+
 
 
 #pragma mark - Internal API
@@ -468,8 +574,8 @@
 	vc.view.translatesAutoresizingMaskIntoConstraints = NO;
 	[vc didMoveToParentViewController:self];
 	NSDictionary *vd = @{@"iv": vc.view};
-	[containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[iv]|" options:0 metrics:nil views:vd]];
-	[containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]|" options:0 metrics:nil views:vd]];
+	[containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[iv]-0@999-|" options:0 metrics:nil views:vd]];
+	[containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[iv]-0@999-|" options:0 metrics:nil views:vd]];
 }
 
 - (void)removeController:(UIViewController *)vc {
@@ -493,14 +599,17 @@
 		}
 		[varr addObject:vc];
 
+		UITabBarItem *tbi = nil;
+		UIViewController *vcKVO = nil;
 		if ([vc isKindOfClass:[UINavigationController class]]) {
-			UIViewController *realVC = [(UINavigationController *)vc viewControllers].firstObject;
-			UITabBarItem *tbi = realVC.tabBarItem;
-			[marr addObject:tbi];
+			vcKVO = [(UINavigationController *)vc viewControllers].firstObject;
+			tbi = vcKVO.tabBarItem;
 		} else {
-			UITabBarItem *tbi = vc.tabBarItem;
-			[marr addObject:tbi];
+			tbi = vc.tabBarItem;
+			vcKVO = vc;
 		}
+		[marr addObject:tbi];
+		[self setupKVOForTabBarItem:tbi viewController:vcKVO];
 	}];
 
 	self.visibleViewControllers = varr;
@@ -517,7 +626,7 @@
 			_selectedIndex = 0;
 		}
 	}
-	_selectedViewController = self.visibleViewControllers[self.selectedIndex];
+	_selectedViewController = self.viewControllers[self.selectedIndex];
 
 	[self displaySelectedController];
 }
@@ -811,7 +920,19 @@
 		NSIndexPath *pickerIndexPath = [NSIndexPath indexPathForItem:index inSection:0];
 		//	update data sources
 		self.visibleViewControllers[pickerIndexPath.item] = vc;
-		self.tabsDataSource[pickerIndexPath.item] = vc.tabBarItem;
+
+		UITabBarItem *tbi = nil;
+		UIViewController *vcKVO = nil;
+		if ([vc isKindOfClass:[UINavigationController class]]) {
+			vcKVO = [(UINavigationController *)vc viewControllers].firstObject;
+			tbi = vcKVO.tabBarItem;
+		} else {
+			tbi = vc.tabBarItem;
+			vcKVO = vc;
+		}
+		[self setupKVOForTabBarItem:tbi viewController:vcKVO];
+
+		self.tabsDataSource[pickerIndexPath.item] = tbi;
 		//	reload tabs
 		[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[pickerIndexPath]];
 		//	make it selected and display the content
@@ -873,5 +994,41 @@
 
 	[self injectViewController:vc atIndex:tabIndex];
 }
+
+
+#pragma mark Observer Setup
+
+- (void)setupKVOForTabBarItem:(UITabBarItem *)tabBarItem viewController:(UIViewController *)vc {
+
+	{
+		NSString *keyPath = [NSString stringWithFormat:@"%@.%@", NSStringFromSelector(@selector(tabBarItem)), NSStringFromSelector(@selector(badgeValue))];
+		[vc addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew context:RTTabBarControllerTabBarItemObservationContext];
+	}
+	{
+		NSString *keyPath = [NSString stringWithFormat:@"%@.%@", NSStringFromSelector(@selector(tabBarItem)), NSStringFromSelector(@selector(title))];
+		[vc addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew context:RTTabBarControllerTabBarItemObservationContext];
+	}
+	{
+		NSString *keyPath = [NSString stringWithFormat:@"%@.%@", NSStringFromSelector(@selector(tabBarItem)), NSStringFromSelector(@selector(image))];
+		[vc addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew context:RTTabBarControllerTabBarItemObservationContext];
+	}
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
+
+	if (context == RTTabBarControllerTabBarItemObservationContext) {
+		if ([object isKindOfClass:[UIViewController class]]) {
+			UIViewController *vc = (UIViewController *)object;
+			NSInteger tabIndex = [self tabIndexForSenderViewController:vc];
+			//	update badgeValue on corresponding tab
+			NSIndexPath *indexPath = [NSIndexPath indexPathForItem:tabIndex inSection:0];
+			[self.tabItemsCollectionView reloadItemsAtIndexPaths:@[indexPath]];
+		}
+		return;
+	}
+
+	[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+}
+
 
 @end
