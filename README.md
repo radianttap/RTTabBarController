@@ -1,3 +1,8 @@
+---
+> Note: this is abandoned. 
+> It should still work just fine in Objective-C projects, but I don't plan to use nor maintain it anymore.
+---
+
 # RTTabBarController
 
 Completely custom tab bar controller, intended to be used as replacement for UITabBarController
